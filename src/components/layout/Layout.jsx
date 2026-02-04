@@ -6,7 +6,7 @@ function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
       {/* Sidebar - hidden on mobile */}
       <div className={`
         ${sidebarOpen ? 'block' : 'hidden'} 
@@ -24,7 +24,7 @@ function Layout({ children }) {
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-800 transition-colors duration-300">
           {children}
         </main>
       </div>
