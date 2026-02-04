@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom dark mode styles for dashboard */
+.dark .dashboard-bg {
+  background-color: #0f172a;
+}
+
+.dark .dashboard-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+.dark .dashboard-text-primary {
+  color: #f1f5f9;
+}
+
+.dark .dashboard-text-secondary {
+  color: #cbd5e1;
+}
+
+.dark .dashboard-border {
+  border-color: #334155;
+}
+
+.dark .dashboard-hover:hover {
+  background-color: #334155;
+}

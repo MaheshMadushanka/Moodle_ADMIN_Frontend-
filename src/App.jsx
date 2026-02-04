@@ -1,13 +1,13 @@
-import "./App.css";
-import MoodleRoutes from "./routes/MoodleRoutes";
+import React from 'react'
+import MoodleRoutes from './routes/MoodleRoutes'
+import { ThemeProvider } from './context/ThemeContext'
+
 function App() {
   return (
-    <>
-      <div>
-        <MoodleRoutes/>
-        </div>
-    </>
-  );
+    <ThemeProvider>
+      <MoodleRoutes />
+    </ThemeProvider>
+  )
 }
 
-export default App;
+export default App
