@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Moon, 
   Sun, 
@@ -6,9 +6,10 @@ import {
   Search,
   Menu
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
-function Navbar() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+function Navbar({ onMenuClick }) {
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   return (
     <nav className={`${
@@ -17,11 +18,14 @@ function Navbar() {
       <div className="flex items-center justify-between px-6 py-4">
         {/* Left Section - Menu & Title */}
         <div className="flex items-center gap-4">
-          <button className={`lg:hidden p-2 rounded-lg transition-colors ${
-            isDarkMode 
-              ? 'hover:bg-slate-800 text-slate-300' 
-              : 'hover:bg-slate-100 text-slate-600'
-          }`}>
+          <button 
+            onClick={onMenuClick}
+            className={`lg:hidden p-2 rounded-lg transition-colors ${
+              isDarkMode 
+                ? 'hover:bg-slate-800 text-slate-300' 
+                : 'hover:bg-slate-100 text-slate-600'
+            }`}
+          >
             <Menu size={20} />
           </button>
           
@@ -59,7 +63,7 @@ function Navbar() {
         <div className="flex items-center gap-3">
           {/* Dark/Light Mode Toggle */}
           <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={toggleDarkMode}
             className={`p-2 rounded-lg transition-colors ${
               isDarkMode 
                 ? 'hover:bg-slate-800 text-slate-300' 
