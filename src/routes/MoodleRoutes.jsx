@@ -10,7 +10,6 @@ import Courses from "../pages/courses/Courses";
 import Reports from "../pages/reports/Reports";
 import Settings from "../pages/settings/Settings";
 
-
 function MoodleRoutes() {
   return (
     <BrowserRouter>
