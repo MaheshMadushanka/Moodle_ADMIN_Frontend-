@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Logo from "../../assets/vtclogo.jpeg";
 
 function Login() {
+  const nav = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -18,8 +20,10 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     // Handle login logic here
     console.log('Login submitted:', formData);
+     nav('/dashboard');
   };
 
   return (
