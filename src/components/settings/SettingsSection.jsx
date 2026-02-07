@@ -2,14 +2,14 @@ import React from 'react'
 
 function SettingsSection({ title, description, children, isDarkMode }) {
   return (
-    <div className={`border rounded-lg p-6 transition-colors duration-300 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+    <div className={`border rounded-lg p-4 sm:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
       {/* Header */}
       <div className="mb-6">
-        <h2 className={`text-2xl font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+        <h2 className={`text-lg sm:text-2xl font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
           {title}
         </h2>
         {description && (
-          <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+          <p className={`text-xs sm:text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
             {description}
           </p>
         )}
@@ -19,7 +19,7 @@ function SettingsSection({ title, description, children, isDarkMode }) {
       <div className={`mb-6 h-px ${isDarkMode ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
 
       {/* Content */}
-      <div>
+      <div className="space-y-4">
         {children}
       </div>
     </div>

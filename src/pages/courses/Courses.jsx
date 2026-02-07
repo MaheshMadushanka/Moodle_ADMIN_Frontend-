@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Plus, BookOpen } from 'lucide-react'
+import { Plus, BookOpen, X } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import CourseCard from '../../components/courses/CourseCard'
 import CourseDetails from '../../components/courses/CourseDetails'
@@ -99,10 +99,11 @@ function Courses() {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl min-h-[44px]"
           >
             <Plus size={20} />
-            Create Course
+            <span className="hidden sm:inline">Create Course</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
 
