@@ -20,7 +20,7 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    nav.
+    
     // Handle login logic here
     console.log('Login submitted:', formData);
      nav('/dashboard');
