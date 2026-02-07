@@ -25,9 +25,9 @@ function ChartsSection({ isDarkMode }) {
   const chartHeight = 200
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
       {/* Enrollment Growth Chart */}
-      <div className={`border rounded-lg p-6 transition-colors duration-300 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+      <div className={`border rounded-lg p-4 sm:p-6 transition-colors duration-300 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} size={24} />
           <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>

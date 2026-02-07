@@ -34,13 +34,13 @@ function SummaryCards({ stats, isDarkMode }) {
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
       {cards.map((card, idx) => {
         const Icon = card.icon
         return (
           <div
             key={idx}
-            className={`border rounded-xl p-6 transition-all duration-300 ${
+            className={`border rounded-lg p-4 sm:p-6 transition-all duration-300 ${
               isDarkMode
                 ? 'bg-slate-800 border-slate-700 hover:shadow-lg hover:shadow-slate-700/50'
                 : 'bg-white border-slate-200 hover:shadow-lg'
@@ -48,15 +48,15 @@ function SummaryCards({ stats, isDarkMode }) {
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                <p className={`text-xs sm:text-sm font-medium mb-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                   {card.label}
                 </p>
-                <p className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                <p className={`text-2xl sm:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                   {card.value.toLocaleString()}
                 </p>
               </div>
-              <div className={`${card.bgColor} p-3 rounded-lg`}>
-                <Icon className={`${card.iconColor}`} size={24} />
+              <div className={`${card.bgColor} p-2 sm:p-3 rounded-lg`}>
+                <Icon className={`${card.iconColor}`} size={20} />
               </div>
             </div>
           </div>

@@ -46,7 +46,7 @@ function Reports() {
   if (isLoading) {
     return (
       <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto p-4 sm:p-6">
           <div className="flex items-center justify-center h-96">
             <div className={`text-center ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -60,13 +60,13 @@ function Reports() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className={`text-4xl font-bold transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+        <div className="mb-6 sm:mb-8">
+          <h1 className={`text-2xl sm:text-4xl font-bold transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             Reports & Analytics
           </h1>
-          <p className={`mt-2 transition-colors duration-300 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+          <p className={`mt-2 text-sm sm:text-base transition-colors duration-300 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
             Monitor course performance, student activity, and enrollment metrics
           </p>
         </div>
