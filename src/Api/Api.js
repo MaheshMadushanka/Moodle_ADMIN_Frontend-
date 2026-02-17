@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://13.203.160.138:8070/api'; // Change this to your backend URL
+//const API_BASE_URL = 'http://13.203.160.138:8070/api'; // Change this to your backend URL
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -118,6 +118,19 @@ export const deleteAdminById = (id) =>
 
 export const updateAdminById = (id, adminData) =>
   api.put(`/admin/updateAdminById/${id}`, adminData);
+
+// Role Endpoints
+export const createRole = (position) =>
+  api.post('/role/create', { position });
+
+export const getAllRoles = () =>
+  api.get('/role/getAll');
+
+export const updateRoleById = (id, position) =>
+  api.put(`/role/updateById/${id}`, { position });
+
+export const deleteRoleById = (id) =>
+  api.delete(`/role/deleteById/${id}`);
 
 export default api; 
 

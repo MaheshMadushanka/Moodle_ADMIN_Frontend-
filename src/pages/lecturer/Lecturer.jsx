@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users, Eye, Edit, Trash2, Plus, Search, X } from 'lucide-react'
+import { Users, Eye, Edit, Trash2, Plus, Search, X, Shield } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
-import { getAllLecturers, registerLecturer, deleteLecturerById } from '../../Api/Api'
+import { getAllLecturers, registerLecturer, deleteLecturerById, getAllRoles } from '../../Api/Api'
 import Swal from 'sweetalert2'
 
 const STORAGE_KEY = 'moodle_lecturers_v1'
@@ -13,6 +13,7 @@ function Lecturer() {
 
   const [lecturers, setLecturers] = useState([])
   const [loading, setLoading] = useState(false)
+  const [roles, setRoles] = useState([])
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -23,14 +24,16 @@ function Lecturer() {
     address: '',
     regNumber: '',
     nic: '',
+    roleId: 1,
   })
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
 
-  // Fetch lecturers on component mount
+  // Fetch lecturers and roles on component mount
   useEffect(() => {
     fetchLecturers()
+    fetchRoles()
   }, [])
 
   // Save to localStorage whenever lecturers change
@@ -58,6 +61,17 @@ function Lecturer() {
       }
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchRoles = async () => {
+    try {
+      const response = await getAllRoles()
+      if (response.data.status && response.data.result) {
+        setRoles(response.data.result)
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error)
     }
   }
 
@@ -351,6 +365,17 @@ function Lecturer() {
                     <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Subject</label>
                     <input name="subject" value={form.subject} onChange={handleChange} className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white focus:border-blue-500' : 'bg-white border-slate-200 focus:border-blue-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/20`} />
                   </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Role</label>
+                  <select name="roleId" value={form.roleId} onChange={handleChange} className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white focus:border-blue-500' : 'bg-white border-slate-200 focus:border-blue-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}>
+                    <option value="">Select Role</option>
+                    {roles.map(role => (
+                      <option key={role.id} value={role.id}>
+                        {role.position}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Date of Birth</label>

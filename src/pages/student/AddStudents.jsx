@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   UserPlus, 
@@ -10,10 +10,11 @@ import {
   Monitor,
   Users as UsersIcon,
   ArrowLeft,
-  Save
+  Save,
+  Shield
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import { registerStudent } from '../../Api/Api';
+import { registerStudent, getAllRoles } from '../../Api/Api';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
@@ -21,6 +22,7 @@ function AddStudents() {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -30,10 +32,27 @@ function AddStudents() {
     batchNumber: '',
     dob: '',
     address: '',
-    registrationNumber: ''
+    registrationNumber: '',
+    roleId: 2
   });
 
   const [errors, setErrors] = useState({});
+
+  // Fetch roles on component mount
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await getAllRoles();
+      if (response.data.status && response.data.result) {
+        setRoles(response.data.result);
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,6 +90,10 @@ function AddStudents() {
 
     if (!formData.mode) {
       newErrors.mode = 'Please select a mode';
+    }
+
+    if (!formData.roleId) {
+      newErrors.roleId = 'Please select a role';
     }
 
     if (!formData.batchNumber.trim()) {
@@ -314,6 +337,35 @@ function AddStudents() {
                   {errors.mode && (
                     <p className={errorClass}>
                       <span>⚠</span> {errors.mode}
+                    </p>
+                  )}
+                </div>
+
+                {/* Role */}
+                <div>
+                  <label htmlFor="roleId" className={labelClass}>
+                    <div className="flex items-center gap-2">
+                      <Shield size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      Role *
+                    </div>
+                  </label>
+                  <select
+                    id="roleId"
+                    name="roleId"
+                    value={formData.roleId}
+                    onChange={handleChange}
+                    className={inputClass}
+                  >
+                    <option value="">Select Role</option>
+                    {roles.map(role => (
+                      <option key={role.id} value={role.id}>
+                        {role.position}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.roleId && (
+                    <p className={errorClass}>
+                      <span>⚠</span> {errors.roleId}
                     </p>
                   )}
                 </div>
