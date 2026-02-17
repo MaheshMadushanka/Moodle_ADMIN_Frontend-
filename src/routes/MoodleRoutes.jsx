@@ -15,7 +15,8 @@ function MoodleRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-         <Route path="/" element={<Login />} /> 
+        <Route path="/" element={<Login />} />
+
 
         <Route
           path="/dashboard"
@@ -25,7 +26,6 @@ function MoodleRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/students"
           element={
@@ -62,6 +62,13 @@ function MoodleRoutes() {
         />
 
         <Route
+          path="/courses"
+          element={
+            <Layout>
+              <Courses />
+            </Layout>
+          }
+        /><Route
           path="/courses"
           element={
             <Layout>

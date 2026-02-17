@@ -28,6 +28,10 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Handle login logic here
+    console.log('Login submitted:', formData);
+     nav('/dashboard');
     setLoading(true);
     setError('');
     
