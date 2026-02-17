@@ -1,6 +1,8 @@
 import React from "react";
 import { Moon, Sun, LogOut, Search, Menu } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
+const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+const admin = userDetails?.admins?.[0];
 
 function Navbar({ onMenuClick }) {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -103,14 +105,22 @@ function Navbar({ onMenuClick }) {
                     : "bg-blue-500 text-white"
                 }`}
               >
-                AD
+                {admin?.imageURL ? (
+                  <img
+                    src={admin.imageURL}
+                    alt="profile"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  admin?.full_name?.charAt(0).toUpperCase()
+                )}
               </div>
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
             </div>
           </button>
 
           {/* Logout Button */}
-          <button
+          {/* <button
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               isDarkMode
                 ? "text-slate-300 hover:bg-red-900/20 hover:text-red-400 border border-slate-700 hover:border-red-800"
@@ -119,7 +129,7 @@ function Navbar({ onMenuClick }) {
           >
             <LogOut size={18} />
             <span className="hidden sm:inline">Logout</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </nav>
