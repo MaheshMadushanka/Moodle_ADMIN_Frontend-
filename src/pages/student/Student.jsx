@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
@@ -10,93 +10,146 @@ import {
   Filter
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { getAllStudents, deleteStudentById, updateStudentAccountStatus } from '../../Api/Api';
+import Swal from 'sweetalert2';
 
 function Student() {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  // Sample student data
-  const studentsData = [
-    {
-      id: 1,
-      regNumber: 'STU2024001',
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
-      contact: '+94 77 123 4567',
-      mode: 'Online',
-      batchNumber: 'B2024-A',
-      dob: '1998-05-15',
-      address: '123 Main St, Colombo'
-    },
-    {
-      id: 2,
-      regNumber: 'STU2024002',
-      fullName: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      contact: '+94 76 234 5678',
-      mode: 'Physical',
-      batchNumber: 'B2024-B',
-      dob: '1999-08-22',
-      address: '456 Lake Rd, Kandy'
-    },
-    {
-      id: 3,
-      regNumber: 'STU2024003',
-      fullName: 'Michael Johnson',
-      email: 'michael.j@example.com',
-      contact: '+94 75 345 6789',
-      mode: 'Online',
-      batchNumber: 'B2024-A',
-      dob: '1997-12-10',
-      address: '789 Beach Ave, Galle'
-    },
-    {
-      id: 4,
-      regNumber: 'STU2024004',
-      fullName: 'Emily Brown',
-      email: 'emily.brown@example.com',
-      contact: '+94 74 456 7890',
-      mode: 'Physical',
-      batchNumber: 'B2024-C',
-      dob: '2000-03-18',
-      address: '321 Hill St, Negombo'
-    },
-    {
-      id: 5,
-      regNumber: 'STU2024005',
-      fullName: 'David Wilson',
-      email: 'david.wilson@example.com',
-      contact: '+94 73 567 8901',
-      mode: 'Online',
-      batchNumber: 'B2024-B',
-      dob: '1998-11-25',
-      address: '654 Park Lane, Jaffna'
+  // Fetch students on component mount
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllStudents();
+      if (response.data.status && response.data.result) {
+        setStudents(response.data.result);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.data.message || 'Failed to fetch students',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to fetch students';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '#ef4444'
+      });
+      console.error('Error fetching students:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const totalStudents = studentsData.length;
+  const totalStudents = students.length;
 
-  const filteredStudents = studentsData.filter(student =>
-    student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.regNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.batchNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = students.filter(student =>
+    (student.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (student.reg_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (student.address || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (student.batch_number || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleView = (studentId) => {
-    navigate(`/studentview/${studentId}`);
+  const handleView = (student) => {
+    setSelectedStudent(student);
+    setShowDetailsModal(true);
   };
 
   const handleEdit = (studentId) => {
     navigate(`/editstudent/${studentId}`);
   };
 
-  const handleDelete = (studentId) => {
-    // Add delete confirmation logic here
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      console.log('Delete student:', studentId);
-      // Add your delete logic here
+  const handleDelete = async (studentId, studentName) => {
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete Student',
+      text: `Are you sure you want to delete "${studentName}"? This action cannot be undone.`,
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Delete'
+    });
+
+    if (!result.isConfirmed) return;
+
+    setLoading(true);
+    try {
+      const response = await deleteStudentById(studentId);
+      if (response.data.status) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted',
+          text: 'Student deleted successfully',
+          confirmButtonColor: '#3b82f6'
+        });
+        fetchStudents();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.data.message || 'Failed to delete student',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to delete student';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (studentId, currentStatus, studentName) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    setLoading(true);
+    try {
+      const response = await updateStudentAccountStatus(studentId, newStatus);
+      if (response.data.status) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated',
+          text: `Student status changed to ${newStatus}`,
+          confirmButtonColor: '#3b82f6'
+        });
+        fetchStudents();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.data.message || 'Failed to update status',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to update status';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -168,7 +221,8 @@ function Student() {
           </div>
           <button
             onClick={() => navigate('/addstudent')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all duration-300 ${
+            disabled={loading}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 ${
               isDarkMode
                 ? 'bg-blue-600 hover:bg-blue-700 text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -200,11 +254,6 @@ function Student() {
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${
                     isDarkMode ? 'text-slate-200' : 'text-slate-700'
                   }`}>
-                    Email
-                  </th>
-                  <th className={`px-6 py-4 text-left text-sm font-semibold ${
-                    isDarkMode ? 'text-slate-200' : 'text-slate-700'
-                  }`}>
                     Contact
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${
@@ -217,6 +266,11 @@ function Student() {
                   }`}>
                     Batch
                   </th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${
+                    isDarkMode ? 'text-slate-200' : 'text-slate-700'
+                  }`}>
+                    Status
+                  </th>
                   <th className={`px-6 py-4 text-center text-sm font-semibold ${
                     isDarkMode ? 'text-slate-200' : 'text-slate-700'
                   }`}>
@@ -225,7 +279,15 @@ function Student() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredStudents.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className={`px-6 py-8 text-center text-sm ${
+                      isDarkMode ? 'text-slate-400' : 'text-slate-500'
+                    }`}>
+                      Loading students...
+                    </td>
+                  </tr>
+                ) : filteredStudents.length > 0 ? (
                   filteredStudents.map((student) => (
                     <tr 
                       key={student.id}
@@ -236,26 +298,21 @@ function Student() {
                       <td className={`px-6 py-4 text-sm font-medium ${
                         isDarkMode ? 'text-blue-400' : 'text-blue-600'
                       }`}>
-                        {student.regNumber}
+                        {student.reg_number}
                       </td>
                       <td className={`px-6 py-4 text-sm ${
                         isDarkMode ? 'text-white' : 'text-slate-900'
                       }`}>
-                        {student.fullName}
+                        {student.full_name}
                       </td>
                       <td className={`px-6 py-4 text-sm ${
                         isDarkMode ? 'text-slate-300' : 'text-slate-600'
                       }`}>
-                        {student.email}
-                      </td>
-                      <td className={`px-6 py-4 text-sm ${
-                        isDarkMode ? 'text-slate-300' : 'text-slate-600'
-                      }`}>
-                        {student.contact}
+                        {student.phone}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          student.mode === 'Online'
+                          (student.mode || '').toLowerCase() === 'online'
                             ? isDarkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-50 text-blue-700'
                             : isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-50 text-green-700'
                         }`}>
@@ -265,13 +322,27 @@ function Student() {
                       <td className={`px-6 py-4 text-sm ${
                         isDarkMode ? 'text-slate-300' : 'text-slate-600'
                       }`}>
-                        {student.batchNumber}
+                        {student.batch_number}
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleStatusChange(student.id, student.account_status, student.full_name)}
+                          disabled={loading}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${
+                            student.account_status === 'active'
+                              ? isDarkMode ? 'bg-green-900/30 text-green-300 hover:bg-green-900/50' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                              : isDarkMode ? 'bg-red-900/30 text-red-300 hover:bg-red-900/50' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                          }`}
+                        >
+                          {student.account_status}
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-2">
                           <button
-                            onClick={() => handleView(student.id)}
-                            className={`p-2 rounded-lg transition-colors duration-200 ${
+                            onClick={() => handleView(student)}
+                            disabled={loading}
+                            className={`p-2 rounded-lg transition-colors duration-200 disabled:opacity-50 ${
                               isDarkMode
                                 ? 'hover:bg-blue-900/30 text-blue-400'
                                 : 'hover:bg-blue-50 text-blue-600'
@@ -282,7 +353,8 @@ function Student() {
                           </button>
                           <button
                             onClick={() => handleEdit(student.id)}
-                            className={`p-2 rounded-lg transition-colors duration-200 ${
+                            disabled={loading}
+                            className={`p-2 rounded-lg transition-colors duration-200 disabled:opacity-50 ${
                               isDarkMode
                                 ? 'hover:bg-indigo-900/30 text-indigo-400'
                                 : 'hover:bg-indigo-50 text-indigo-600'
@@ -292,8 +364,9 @@ function Student() {
                             <Edit size={18} />
                           </button>
                           <button
-                            onClick={() => handleDelete(student.id)}
-                            className={`p-2 rounded-lg transition-colors duration-200 ${
+                            onClick={() => handleDelete(student.id, student.full_name)}
+                            disabled={loading}
+                            className={`p-2 rounded-lg transition-colors duration-200 disabled:opacity-50 ${
                               isDarkMode
                                 ? 'hover:bg-red-900/30 text-red-400'
                                 : 'hover:bg-red-50 text-red-600'
@@ -331,6 +404,83 @@ function Student() {
             Showing {filteredStudents.length} of {totalStudents} students
           </p>
         </div>
+
+        {/* Student Details Modal */}
+        {showDetailsModal && selectedStudent && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-white'} rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6`}>
+              <div className="flex items-start justify-between mb-6">
+                <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Student Details
+                </h2>
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 rounded-lg ${isDarkMode ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Registration Number</p>
+                  <p className={`text-sm font-semibold mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedStudent.reg_number}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Full Name</p>
+                  <p className={`text-sm font-semibold mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedStudent.full_name}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Phone</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.phone}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Date of Birth</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{new Date(selectedStudent.dob).toLocaleDateString()}</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Address</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.address}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Mode</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.mode}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Batch Number</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.batch_number}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Account Status</p>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${
+                    selectedStudent.account_status === 'active'
+                      ? isDarkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-50 text-green-700'
+                      : isDarkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-50 text-red-700'
+                  }`}>
+                    {selectedStudent.account_status}
+                  </span>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>User ID</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.user_id}</p>
+                </div>
+                <div>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Created</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{new Date(selectedStudent.createdAt).toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className={`px-6 py-2.5 rounded-lg font-medium transition-all ${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

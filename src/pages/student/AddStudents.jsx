@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   UserPlus, 
@@ -10,15 +10,19 @@ import {
   Monitor,
   Users as UsersIcon,
   ArrowLeft,
-  Save
+  Save,
+  Shield
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { registerStudent, getAllRoles } from '../../Api/Api';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 function AddStudents() {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -28,10 +32,27 @@ function AddStudents() {
     batchNumber: '',
     dob: '',
     address: '',
-    registrationNumber: ''
+    registrationNumber: '',
+    roleId: 2
   });
 
   const [errors, setErrors] = useState({});
+
+  // Fetch roles on component mount
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await getAllRoles();
+      if (response.data.status && response.data.result) {
+        setRoles(response.data.result);
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,6 +92,10 @@ function AddStudents() {
       newErrors.mode = 'Please select a mode';
     }
 
+    if (!formData.roleId) {
+      newErrors.roleId = 'Please select a role';
+    }
+
     if (!formData.batchNumber.trim()) {
       newErrors.batchNumber = 'Batch number is required';
     }
@@ -94,34 +119,7 @@ function AddStudents() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      // Show success alert
-      Swal.fire({
-        title: 'Success!',
-        text: 'Student has been added successfully',
-        icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#2563eb',
-        background: isDarkMode ? '#1e293b' : '#ffffff',
-        color: isDarkMode ? '#f1f5f9' : '#0f172a',
-        customClass: {
-          popup: isDarkMode ? 'dark-popup' : '',
-          confirmButton: 'custom-confirm-button'
-        },
-        showClass: {
-          popup: 'animate__animated animate__fadeInDown animate__faster'
-        },
-        hideClass: {
-          popup: 'animate__animated animate__fadeOutUp animate__faster'
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Navigate back to students page
-          navigate('/students');
-        }
-      });
-    } else {
-      // Show error alert
+    if (!validateForm()) {
       Swal.fire({
         title: 'Oops!',
         text: 'Please fill in all required fields correctly',
@@ -134,6 +132,59 @@ function AddStudents() {
           popup: isDarkMode ? 'dark-popup' : ''
         }
       });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await registerStudent(formData);
+      
+      if (response.data.status) {
+        Swal.fire({
+          title: 'Success!',
+          text: response.data.message || 'Student has been added successfully',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#2563eb',
+          background: isDarkMode ? '#1e293b' : '#ffffff',
+          color: isDarkMode ? '#f1f5f9' : '#0f172a',
+          customClass: {
+            popup: isDarkMode ? 'dark-popup' : '',
+            confirmButton: 'custom-confirm-button'
+          },
+          showClass: {
+            popup: 'animate__animated animate__fadeInDown animate__faster'
+          },
+          hideClass: {
+            popup: 'animate__animated animate__fadeOutUp animate__faster'
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate('/students');
+          }
+        });
+      } else {
+        Swal.fire({
+          title: 'Error!',
+          text: response.data.message || 'Failed to add student',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+          background: isDarkMode ? '#1e293b' : '#ffffff',
+          color: isDarkMode ? '#f1f5f9' : '#0f172a',
+        });
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to add student. Please try again.';
+      Swal.fire({
+        title: 'Error!',
+        text: errorMsg,
+        icon: 'error',
+        confirmButtonColor: '#dc2626',
+        background: isDarkMode ? '#1e293b' : '#ffffff',
+        color: isDarkMode ? '#f1f5f9' : '#0f172a',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -290,6 +341,35 @@ function AddStudents() {
                   )}
                 </div>
 
+                {/* Role */}
+                <div>
+                  <label htmlFor="roleId" className={labelClass}>
+                    <div className="flex items-center gap-2">
+                      <Shield size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      Role *
+                    </div>
+                  </label>
+                  <select
+                    id="roleId"
+                    name="roleId"
+                    value={formData.roleId}
+                    onChange={handleChange}
+                    className={inputClass}
+                  >
+                    <option value="">Select Role</option>
+                    {roles.map(role => (
+                      <option key={role.id} value={role.id}>
+                        {role.position}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.roleId && (
+                    <p className={errorClass}>
+                      <span>⚠</span> {errors.roleId}
+                    </p>
+                  )}
+                </div>
+
                 {/* Batch Number */}
                 <div>
                   <label htmlFor="batchNumber" className={labelClass}>
@@ -391,19 +471,21 @@ function AddStudents() {
             <div className="mt-8 flex gap-4">
               <button
                 type="submit"
-                className={`flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${
+                disabled={loading}
+                className={`flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 ${
                   isDarkMode
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-900/30'
                     : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30'
                 }`}
               >
                 <Save size={20} />
-                Add Student
+                {loading ? 'Adding Student...' : 'Add Student'}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/students')}
-                className={`px-6 py-3.5 rounded-lg font-semibold transition-all duration-300 ${
+                disabled={loading}
+                className={`px-6 py-3.5 rounded-lg font-semibold transition-all duration-300 disabled:opacity-50 ${
                   isDarkMode
                     ? 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-600'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'

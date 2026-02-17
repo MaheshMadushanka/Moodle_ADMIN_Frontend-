@@ -6,6 +6,7 @@ import Login from "../pages/login/Login";
 import Student from "../pages/student/Student";
 import AddStudents from "../pages/student/AddStudents";
 import Lecturer from "../pages/lecturer/Lecturer";
+import Roles from "../pages/roles/Roles";
 import Courses from "../pages/courses/Courses";
 import Reports from "../pages/reports/Reports";
 import Settings from "../pages/settings/Settings";
@@ -47,6 +48,15 @@ function MoodleRoutes() {
           element={
             <Layout>
               <Lecturer />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/roles"
+          element={
+            <Layout>
+              <Roles />
             </Layout>
           }
         />
