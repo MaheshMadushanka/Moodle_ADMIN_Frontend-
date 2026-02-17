@@ -5,6 +5,7 @@ import {
   GraduationCap, 
   Users, 
   BookOpen, 
+  Briefcase,
   BarChart3, 
   Settings,
   Moon,
@@ -25,6 +26,7 @@ function Sidebar() {
       '/dashboard': 'Dashboard',
       '/students': 'Students',
       '/lecturers': 'Lecturers',
+      '/roles': 'Roles',
       '/courses': 'Courses',
       '/reports': 'Reports & Analytics',
       '/settings': 'Settings'
@@ -49,6 +51,7 @@ function Sidebar() {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { name: 'Students', icon: GraduationCap, path: '/students' },
     { name: 'Lecturers', icon: Users, path: '/lecturers' },
+    { name: 'Roles', icon: Briefcase, path: '/roles' },
     { name: 'Courses', icon: BookOpen, path: '/courses' },
     { name: 'Reports & Analytics', icon: BarChart3, path: '/reports' },
     { name: 'Settings', icon: Settings, path: '/settings' },
