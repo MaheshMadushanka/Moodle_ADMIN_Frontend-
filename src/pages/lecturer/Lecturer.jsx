@@ -116,7 +116,7 @@ function Lecturer() {
           text: response.data.message || 'Lecturer added successfully',
           confirmButtonColor: '#3b82f6'
         })
-        setForm({ fullName: '', email: '', contact: '', mode: 'Online', subject: '', dob: '', address: '', regNumber: '', nic: '' })
+        setForm({ fullName: '', email: '', contact: '', mode: 'Online', subject: '', dob: '', address: '', regNumber: '', nic: '', roleId: 1 })
         setShowAdd(false)
         fetchLecturers()
       } else {

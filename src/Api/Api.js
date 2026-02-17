@@ -44,7 +44,7 @@ export const registerStudent = (studentData) =>
     reg_number: studentData.registrationNumber,
     batch_number: studentData.batchNumber,
     email: studentData.email,
-    role_id: 2 // Student role
+    role_id: studentData.roleId || 2
   });
 
 export const getAllStudents = () =>
@@ -82,7 +82,8 @@ export const registerLecturer = (lecturerData) =>
     reg_number: lecturerData.regNumber,
     nic: lecturerData.nic || '',
     email: lecturerData.email,
-    role_id: 1 // Lecturer role
+    subject: lecturerData.subject || '',
+    role_id: lecturerData.roleId || 1
   });
 
 export const getAllLecturers = () =>
