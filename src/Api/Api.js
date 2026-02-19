@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-//const API_BASE_URL = 'http://13.203.160.138:8070/api'; // Change this to your backend URL
+const API_BASE_URL = 'http://13.203.160.138:8070/api'; // Change this to your backend URL
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'

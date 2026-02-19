@@ -1,2 +1,0 @@
-/api/* http://13.203.160.138:8070/api/:splat 200
-/* /index.html 200

@@ -27,61 +27,68 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    
-    try {
-      if (!formData.email || !formData.password) {
-        setError('Please enter both email and password');
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+
+  try {
+    if (!formData.email || !formData.password) {
+      setError('Please enter both email and password');
+      setLoading(false);
+      return;
+    }
+
+    const response = await loginUser(formData.email, formData.password);
+
+    if (response.data.status) {
+      const { token, userDetails } = response.data.result;
+
+      // Save auth data
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('userDetails', JSON.stringify(userDetails));
+
+      console.log('User Details:', userDetails);
+
+      // Redirect logic
+      let redirectPath = '/dashboard';
+
+      if (!userDetails.admins || userDetails.admins.length === 0) {
+        setError('User does not have admin access');
         setLoading(false);
         return;
       }
 
-      const response = await loginUser(formData.email, formData.password);
-      
-      if (response.data.status) {
-        // Store token and user data
-        localStorage.setItem('authToken', response.data.result.token);
-        localStorage.setItem('userDetails', JSON.stringify(response.data.result.userDetails));
-        console.log('User Details:', response.data.result.userDetails);
-        
-        // Determine user role and redirect accordingly
-        const userDetails = response.data.result.userDetails;
-        let redirectPath = '/dashboard';
-        
-        if (userDetails.admins && userDetails.admins.length > 0) {
-          redirectPath = '/dashboard';
-        } else if (userDetails.lectures && userDetails.lectures.length > 0) {
-          redirectPath = '/lecturer';
-        } else if (userDetails.students && userDetails.students.length > 0) {
-          redirectPath = '/student';
-        }
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Login Successful',
-          text: response.data.message,
-          confirmButtonColor: '#3b82f6'
-        }).then(() => {
-          nav(redirectPath);
-        });
-      } else {
-        setError(response.data.message || 'Login failed');
-      }
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Failed to login. Please try again.';
-      setError(errorMsg);
-      Swal.fire({
-        icon: 'error',
-        title: 'Login Failed',
-        text: errorMsg,
-        confirmButtonColor: '#ef4444'
+      await Swal.fire({
+        icon: 'success',
+        title: 'Login Successful',
+        text: response.data.message,
+        confirmButtonColor: '#3b82f6'
       });
-    } finally {
-      setLoading(false);
+
+      nav(redirectPath);
+    } else {
+      setError(response.data.message || 'Login failed');
     }
-  };
+
+  } catch (err) {
+    const errorMsg =
+      err.response?.data?.message ||
+      err.message ||
+      'Failed to login. Please try again.';
+
+    setError(errorMsg);
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Login Failed',
+      text: errorMsg,
+      confirmButtonColor: '#ef4444'
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
