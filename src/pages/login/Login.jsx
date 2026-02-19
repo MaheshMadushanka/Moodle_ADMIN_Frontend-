@@ -1,39 +1,38 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/vtclogo.jpeg";
-import { loginUser, sendOTP } from '../../Api/Api';
-import Swal from 'sweetalert2';
+import { loginUser, sendOTP } from "../../Api/Api";
+import Swal from "sweetalert2";
 
 function Login() {
   const nav = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  try {
     if (!formData.email || !formData.password) {
-      setError('Please enter both email and password');
+      setError("Please enter both email and password");
       setLoading(false);
       return;
     }
@@ -44,51 +43,53 @@ function Login() {
       const { token, userDetails } = response.data.result;
 
       // Save auth data
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userDetails', JSON.stringify(userDetails));
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("userDetails", JSON.stringify(userDetails));
 
-      console.log('User Details:', userDetails);
+      console.log("User Details:", userDetails);
 
       // Redirect logic
-      let redirectPath = '/dashboard';
+      let redirectPath = "/dashboard";
 
       if (!userDetails.admins || userDetails.admins.length === 0) {
-        setError('User does not have admin access');
+        setError("User does not have admin access");
+        e.preventDefault();
         setLoading(false);
         return;
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Login Successful',
-        text: response.data.message,
-        confirmButtonColor: '#3b82f6'
-      });
+      // Handle login logic here
+      console.log("Login submitted:", formData);
+      nav("/dashboard");
+      setLoading(true);
+      setError("");
 
-      nav(redirectPath);
-    } else {
-      setError(response.data.message || 'Login failed');
+      try {
+        if (!formData.email || !formData.password) {
+          setError("Please enter both email and password");
+          setLoading(false);
+          return;
+        }
+
+        await Swal.fire({
+          icon: "success",
+          title: "Login Successful",
+          text: response.data.message,
+          confirmButtonColor: "#3b82f6",
+        });
+
+        nav(redirectPath);
+      } catch (error) {
+        console.error(error);
+        // handle error (adjust to your component state handlers)
+        if (typeof setError === "function")
+          setError(error.message || String(error));
+      } finally {
+        // optional cleanup (adjust to your component state handlers)
+        if (typeof setLoading === "function") setLoading(false);
+      }
     }
-
-  } catch (err) {
-    const errorMsg =
-      err.response?.data?.message ||
-      err.message ||
-      'Failed to login. Please try again.';
-
-    setError(errorMsg);
-
-    Swal.fire({
-      icon: 'error',
-      title: 'Login Failed',
-      text: errorMsg,
-      confirmButtonColor: '#ef4444'
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -97,41 +98,41 @@ function Login() {
     try {
       if (!forgotEmail) {
         Swal.fire({
-          icon: 'warning',
-          title: 'Email Required',
-          text: 'Please enter your email address',
-          confirmButtonColor: '#3b82f6'
+          icon: "warning",
+          title: "Email Required",
+          text: "Please enter your email address",
+          confirmButtonColor: "#3b82f6",
         });
         setForgotLoading(false);
         return;
       }
 
       const response = await sendOTP(forgotEmail);
-      
+
       if (response.data.status) {
         Swal.fire({
-          icon: 'success',
-          title: 'OTP Sent',
-          text: 'Please check your email for the OTP code',
-          confirmButtonColor: '#3b82f6'
+          icon: "success",
+          title: "OTP Sent",
+          text: "Please check your email for the OTP code",
+          confirmButtonColor: "#3b82f6",
         });
         setShowForgotPassword(false);
-        setForgotEmail('');
+        setForgotEmail("");
       } else {
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.data.message || 'Failed to send OTP',
-          confirmButtonColor: '#ef4444'
+          icon: "error",
+          title: "Error",
+          text: response.data.message || "Failed to send OTP",
+          confirmButtonColor: "#ef4444",
         });
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Failed to send OTP';
+      const errorMsg = err.response?.data?.message || "Failed to send OTP";
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
+        icon: "error",
+        title: "Error",
         text: errorMsg,
-        confirmButtonColor: '#ef4444'
+        confirmButtonColor: "#ef4444",
       });
     } finally {
       setForgotLoading(false);
@@ -142,7 +143,7 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-      
+
       {/* Login Container */}
       <div className="relative w-full max-w-md">
         {/* Transparent Login Form */}
@@ -152,20 +153,27 @@ function Login() {
               {/* Logo Section */}
               <div className="flex flex-col items-center mb-8">
                 <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-4 border-white/30 shadow-lg">
-                  <img 
-                    src={Logo} 
-                    alt="VTC Logo" 
+                  <img
+                    src={Logo}
+                    alt="VTC Logo"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-                <p className="text-slate-300 text-sm">Sign in to your admin account</p>
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  Welcome Back
+                </h1>
+                <p className="text-slate-300 text-sm">
+                  Sign in to your admin account
+                </p>
               </div>
 
               {/* Error Message */}
               {error && (
                 <div className="mb-5 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-start gap-3">
-                  <AlertCircle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
+                  <AlertCircle
+                    size={20}
+                    className="text-red-400 flex-shrink-0 mt-0.5"
+                  />
                   <p className="text-red-200 text-sm">{error}</p>
                 </div>
               )}
@@ -173,7 +181,10 @@ function Login() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email Input */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-slate-200 mb-2"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -196,7 +207,10 @@ function Login() {
 
                 {/* Password Input */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-200 mb-2">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-slate-200 mb-2"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -233,7 +247,9 @@ function Login() {
                       className="w-4 h-4 rounded border-white/30 bg-white/10 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
                       disabled={loading}
                     />
-                    <span className="ml-2 text-sm text-slate-300">Remember me</span>
+                    <span className="ml-2 text-sm text-slate-300">
+                      Remember me
+                    </span>
                   </label>
                   <button
                     type="button"
@@ -251,7 +267,7 @@ function Login() {
                   disabled={loading}
                   className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:scale-100"
                 >
-                  {loading ? 'Signing in...' : 'Sign In'}
+                  {loading ? "Signing in..." : "Sign In"}
                 </button>
               </form>
 
@@ -262,7 +278,9 @@ function Login() {
                     <div className="w-full border-t border-white/20"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-transparent text-slate-400">Admin Portal</span>
+                    <span className="px-4 bg-transparent text-slate-400">
+                      Admin Portal
+                    </span>
                   </div>
                 </div>
               </div>
@@ -276,14 +294,21 @@ function Login() {
             <>
               {/* Forgot Password Section */}
               <div className="flex flex-col items-center mb-8">
-                <h1 className="text-2xl font-bold text-white mb-2">Reset Password</h1>
-                <p className="text-slate-300 text-sm text-center">Enter your email address and we'll send you an OTP code</p>
+                <h1 className="text-2xl font-bold text-white mb-2">
+                  Reset Password
+                </h1>
+                <p className="text-slate-300 text-sm text-center">
+                  Enter your email address and we'll send you an OTP code
+                </p>
               </div>
 
               <form onSubmit={handleForgotPassword} className="space-y-5">
                 {/* Email Input */}
                 <div>
-                  <label htmlFor="forgotEmail" className="block text-sm font-medium text-slate-200 mb-2">
+                  <label
+                    htmlFor="forgotEmail"
+                    className="block text-sm font-medium text-slate-200 mb-2"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -309,7 +334,7 @@ function Login() {
                   disabled={forgotLoading}
                   className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:scale-100"
                 >
-                  {forgotLoading ? 'Sending OTP...' : 'Send OTP'}
+                  {forgotLoading ? "Sending OTP..." : "Send OTP"}
                 </button>
 
                 {/* Back to Login Button */}
@@ -317,7 +342,7 @@ function Login() {
                   type="button"
                   onClick={() => {
                     setShowForgotPassword(false);
-                    setForgotEmail('');
+                    setForgotEmail("");
                   }}
                   disabled={forgotLoading}
                   className="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50"
