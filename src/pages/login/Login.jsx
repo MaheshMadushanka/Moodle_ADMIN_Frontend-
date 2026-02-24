@@ -39,6 +39,7 @@ function Login() {
 
     const response = await loginUser(formData.email, formData.password);
 
+
     if (response.data.status) {
       const { token, userDetails } = response.data.result;
 
@@ -88,6 +89,11 @@ function Login() {
         // optional cleanup (adjust to your component state handlers)
         if (typeof setLoading === "function") setLoading(false);
       }
+    }
+    else {
+      console.error("Login failed:", response.data);
+      setError(response.data.error || "Login failed");
+      setLoading(false);
     }
   };
 
