@@ -13,6 +13,7 @@ function CreateCourseModal({ onClose, onSubmit }) {
     language: 'English',
     duration: '4 weeks',
   })
+  const [imageFile, setImageFile] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -25,10 +26,7 @@ function CreateCourseModal({ onClose, onSubmit }) {
     if (!form.description.trim()) return alert('Course description is required.')
     if (!form.shortDescription.trim()) return alert('Short description is required.')
 
-    onSubmit({
-      ...form,
-      id: Date.now().toString(),
-    })
+    onSubmit({ ...form }, imageFile)
 
     setForm({
       title: '',
@@ -39,6 +37,7 @@ function CreateCourseModal({ onClose, onSubmit }) {
       language: 'English',
       duration: '4 weeks',
     })
+    setImageFile(null)
   }
 
   return (
@@ -118,6 +117,14 @@ function CreateCourseModal({ onClose, onSubmit }) {
               placeholder="https://example.com/image.jpg"
               className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
+          </div>
+
+          {/* Image file upload */}
+          <div>
+            <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
+              Upload Image (optional)
+            </label>
+            <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
           </div>
 
           {/* Mode */}

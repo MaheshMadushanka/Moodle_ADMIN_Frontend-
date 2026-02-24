@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://13.203.160.138:8070/api'; // Change this to your backend URL
+const API_BASE_URL = 'http://3.109.1.245:9999/api'; // Change this to your backend URL
 
 // Create axios instance with default config
 const api = axios.create({
@@ -132,6 +132,35 @@ export const updateRoleById = (id, position) =>
 
 export const deleteRoleById = (id) =>
   api.delete(`/role/deleteById/${id}`);
+
+// Course Endpoints
+export const createCourse = (name) =>
+  api.post('/course/create', { name });
+
+export const getAllCourses = (page = 1, limit = 10) =>
+  api.get('/course/getAll', { params: { page, limit } });
+
+export const updateCourseImageById = (id, file) => {
+  const fd = new FormData();
+  // backend expects file field (commonly 'image' or 'file') - using 'image'
+  fd.append('image', file);
+  return api.post(`/course/updateImageById/${id}`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}
+
+// Course-Lecturer assignment
+export const assignCoursesToLecturer = (lecturerId, courses = []) =>
+  api.post('/course_lecturer/create', { lecturer_id: lecturerId, courses });
+
+// Lecturer CV upload (form-data). Endpoint: /lecture/updateCVById/:user_id
+export const uploadLecturerCVByUserId = (userId, file) => {
+  const fd = new FormData();
+  fd.append('cv', file);
+  return api.put(`/lecture/updateCVById/${userId}`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}
 
 export default api; 
 

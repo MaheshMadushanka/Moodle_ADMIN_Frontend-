@@ -4,52 +4,8 @@ import { useTheme } from '../../context/ThemeContext'
 import CourseCard from '../../components/courses/CourseCard'
 import CourseDetails from '../../components/courses/CourseDetails'
 import CreateCourseModal from '../../components/courses/CreateCourseModal'
-
-const STORAGE_KEY = 'moodle_courses_v1'
-
-// Sample courses for initial state
-const INITIAL_COURSES = [
-  {
-    id: '1',
-    title: 'S2 - Pre Academic Week - 25S1',
-    shortDescription: 'Foundation course for academic preparation',
-    description: 'This course is designed to prepare students for their academic journey. It covers essential skills and knowledge needed for success in higher education.',
-    thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    mode: 'Online',
-    language: 'English',
-    duration: '1 week',
-  },
-  {
-    id: '2',
-    title: 'BIT Student Matters (25S1)',
-    shortDescription: 'Essential student services and support',
-    description: 'Learn about all the resources and support available to students. This course covers academic advising, career services, and student life.',
-    thumbnail: 'https://images.unsplash.com/photo-1516534775068-bb6dae729cb4?w=500&h=300&fit=crop',
-    mode: 'Physical',
-    language: 'English',
-    duration: '2 weeks',
-  },
-  {
-    id: '3',
-    title: 'BIT Administrative Matters - 2024',
-    shortDescription: 'Administrative processes and procedures',
-    description: 'Understanding administrative requirements and processes for students. Covers registration, enrollment, and compliance matters.',
-    thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
-    mode: 'Online',
-    language: 'English',
-    duration: '3 days',
-  },
-  {
-    id: '4',
-    title: 'Orientation 24In2 (Pre Academic Preparation)',
-    shortDescription: 'Campus orientation and preparation',
-    description: 'Get oriented with the campus, facilities, and academic expectations. This hybrid course combines online modules with in-person orientation sessions.',
-    thumbnail: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=500&h=300&fit=crop',
-    mode: 'Hybrid',
-    language: 'English',
-    duration: '1 week',
-  },
-]
+import { getAllCourses, createCourse, updateCourseImageById } from '../../Api/Api'
+import Swal from 'sweetalert2'
 
 function Courses() {
   const { isDarkMode } = useTheme()
@@ -57,30 +13,60 @@ function Courses() {
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  // Load courses from localStorage or use initial courses
+  // Fetch courses from API
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
+    const load = async () => {
       try {
-        setCourses(JSON.parse(stored))
-      } catch (e) {
-        setCourses(INITIAL_COURSES)
+        const res = await getAllCourses(1, 100)
+        if (res.data && res.data.status) {
+          setCourses(res.data.result || [])
+        } else {
+          setCourses([])
+        }
+      } catch (err) {
+        console.error('Failed to load courses', err)
+        setCourses([])
       }
-    } else {
-      setCourses(INITIAL_COURSES)
     }
+    load()
   }, [])
 
-  // Save courses to localStorage
-  useEffect(() => {
-    if (courses.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(courses))
-    }
-  }, [courses])
+  const handleCreateCourse = (newCourse, imageFile) => {
+    const create = async () => {
+      try {
+        const res = await createCourse(newCourse.title || newCourse.name)
+        if (res.data && res.data.status) {
+          const created = res.data.result
+          // if image selected, upload
+          if (imageFile && created && created.id) {
+            try {
+              const up = await updateCourseImageById(created.id, imageFile)
+              if (up.data && up.data.status) {
+                Swal.fire({ icon: 'success', title: 'Created', text: 'Course created and image uploaded', confirmButtonColor: '#3b82f6' })
+              } else {
+                Swal.fire({ icon: 'warning', title: 'Created', text: 'Course created but image upload failed', confirmButtonColor: '#f59e0b' })
+              }
+            } catch (err) {
+              console.error('Image upload error', err)
+              Swal.fire({ icon: 'warning', title: 'Created', text: 'Course created but image upload failed', confirmButtonColor: '#f59e0b' })
+            }
+          } else {
+            Swal.fire({ icon: 'success', title: 'Created', text: res.data.message || 'Course created', confirmButtonColor: '#3b82f6' })
+          }
 
-  const handleCreateCourse = (newCourse) => {
-    setCourses(prev => [newCourse, ...prev])
-    setShowCreateModal(false)
+          // refresh list
+          const list = await getAllCourses(1, 100)
+          setCourses(list.data?.result || [])
+          setShowCreateModal(false)
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res.data?.message || 'Failed to create course', confirmButtonColor: '#ef4444' })
+        }
+      } catch (err) {
+        console.error('Create course error', err)
+        Swal.fire({ icon: 'error', title: 'Error', text: err.response?.data?.message || err.message || 'Failed to create course', confirmButtonColor: '#ef4444' })
+      }
+    }
+    create()
   }
 
   return (
