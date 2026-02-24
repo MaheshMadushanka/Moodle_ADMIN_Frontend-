@@ -531,7 +531,7 @@ function Lecturer() {
                   <th
                     className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
                   >
-                    
+                    sub
                   </th>
                   <th
                     className={`px-4 py-3 text-center text-sm font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
