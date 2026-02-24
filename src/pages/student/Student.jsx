@@ -70,7 +70,7 @@ function Student() {
   };
 
   const handleEdit = (studentId) => {
-    navigate(`/editstudent/${studentId}`);
+    //navigate(`/editstudent/${studentId}`);
   };
 
   const handleDelete = async (studentId, studentName) => {
