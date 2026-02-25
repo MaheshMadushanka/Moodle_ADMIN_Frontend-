@@ -264,7 +264,7 @@ function Student() {
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${
                     isDarkMode ? 'text-slate-200' : 'text-slate-700'
                   }`}>
-                    
+                    Email
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${
                     isDarkMode ? 'text-slate-200' : 'text-slate-700'
@@ -322,7 +322,7 @@ function Student() {
                       <td className={`px-6 py-4 text-sm ${
                         isDarkMode ? 'text-slate-300' : 'text-slate-600'
                       }`}>
-                        {student.batch_number}
+                        {student.email}
                       </td>
                       <td className="px-6 py-4">
                         <button
@@ -447,8 +447,8 @@ function Student() {
                   <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.mode}</p>
                 </div>
                 <div>
-                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Batch Number</p>
-                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.batch_number}</p>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Email</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.email}</p>
                 </div>
                 <div>
                   <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Account Status</p>

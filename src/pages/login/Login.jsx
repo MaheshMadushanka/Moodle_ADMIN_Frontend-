@@ -39,7 +39,6 @@ function Login() {
   }
 
   try {
-    console.log("Attempting login with:", formData);
 
     const response = await loginUser(
       formData.email,
@@ -47,22 +46,26 @@ function Login() {
     );
 
     const data = response.data;
-    console.log("Login response:", data);
 
     if (!data.status) {
       setError(data.error || "Login failed");
       return;
     }
 
-    const { token, userDetails } = data.result;
+    const token = data.token;
+const userDetails = data.result.userDetails;
 
-    if (!userDetails?.admins?.length) {
-      setError("User does not have admin access");
-      return;
-    }
+if (!userDetails?.admins || userDetails.admins.length === 0) {
+  setError("User does not have admin access");
+  return;
+}
 
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("userDetails", JSON.stringify(userDetails));
+// ✅ remove sensitive fields
+const { password, otp, otpExpiryTime, ...safeUser } = userDetails;
+
+// ✅ save auth data
+localStorage.setItem("authToken", token);
+localStorage.setItem("userDetails", JSON.stringify(safeUser));
 
     await Swal.fire({
       icon: "success",

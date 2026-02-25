@@ -64,7 +64,6 @@ function Sidebar() {
 
   const handleLogout = () => {
     // Add your logout logic here
-    console.log('Logout clicked');
     navigate('/');
   };
 

@@ -1,24 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  Users,
-  Eye,
-  Edit,
-  Trash2,
-  Plus,
-  Search,
-  X,
-  Shield,
-} from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from '../../context/ThemeContext';
+import { Users, Eye, Edit, Trash2, Plus, X, Search } from "lucide-react";
 import {
   getAllLecturers,
+  getAllUsers,
+  getAllRoles,
   registerLecturer,
   deleteLecturerById,
-  getAllRoles,
-  updateLecturerAccountStatus,
-  uploadLecturerCVByUserId,
   getAllCourses,
+  getByLecturerId,
+  uploadLecturerCVByUserId,
+  updateLecturerAccountStatus,
   assignCoursesToLecturer,
   updateLecturerById,
 } from "../../Api/Api";
@@ -28,7 +20,6 @@ const STORAGE_KEY = "moodle_lecturers_v1";
 
 function Lecturer() {
   const { isDarkMode } = useTheme();
-  const navigate = useNavigate();
   const [lecturers, setLecturers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState([]);
@@ -53,11 +44,10 @@ function Lecturer() {
 
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({
-    fullName: "",
+    full_Name: "",
     email: "",
-    contact: "",
-    mode: "Online",
-    dob: "",
+    phone: "",
+    mode: "online",
     address: "",
     regNumber: "",
     nic: "",
@@ -80,7 +70,29 @@ function Lecturer() {
     try {
       const response = await getAllLecturers();
       if (response.data.status && response.data.result) {
-        setLecturers(response.data.result);
+        const list = response.data.result || [];
+
+        // fetch users to map emails by user_id
+        try {
+          const usersRes = await getAllUsers(1, 10000);
+          const usersList = (usersRes?.data?.result) || (usersRes?.data) || usersRes || [];
+          const usersMap = new Map();
+          usersList.forEach((u) => usersMap.set(u.id, u));
+
+          const merged = list.map((lect) => {
+            const user = usersMap.get(lect.user_id) || usersMap.get(lect.userId) || null;
+            return {
+              ...lect,
+              user_email: user?.email || lect.email || "",
+            };
+          });
+
+          setLecturers(merged);
+        } catch (uErr) {
+          // fallback: set original list if users fetch fails
+          console.error('Failed to fetch users for email mapping', uErr);
+          setLecturers(list);
+        }
       }
     } catch (error) {
       console.error("Error fetching lecturers:", error);
@@ -123,7 +135,6 @@ function Lecturer() {
     if (!/^\d{7,15}$/.test(form.contact))
       return "Contact should be 7-15 digits (WhatsApp number).";
     if (!form.regNumber.trim()) return "Registration Number is required.";
-    if (!form.dob) return "Date of Birth is required.";
     if (!form.address.trim()) return "Address is required.";
 
     if (cvFile) {
@@ -190,10 +201,32 @@ function Lecturer() {
 
     setLoading(true);
     try {
-      const response = await registerLecturer(form);
+      // Transform form data to snake_case to match API expectations
+      const payload = {
+        full_name: form.fullName,
+        email: form.email,
+        phone: form.contact,
+        address: form.address,
+        mode: form.mode,
+        dob: form.dob,
+        reg_number: form.regNumber,
+        nic: form.nic,
+        role_id: form.roleId,
+      };
+      
+      console.log("Sending lecturer payload:", payload);
+      const response = await registerLecturer(payload);
       if (response.data.status) {
-        const lecturerId = response.data.result?.id;
-        // upload CV using user id
+        // Extract lecturer ID - handle different response structures
+        let lecturerId = response.data.result?.id || response.data.result?.[0]?.id || response.data.id;
+        console.log("Lecturer registration response:", response.data);
+        console.log("Extracted lecturerId:", lecturerId);
+        
+        if (!lecturerId) {
+          console.warn("No lecturer ID found in response. Response data:", response.data);
+        }
+        
+        // upload CV using lecturer id
         if (lecturerId) await uploadCV(lecturerId);
         // assign courses using lecturer id
         if (lecturerId) await assignCourses(lecturerId);
@@ -208,7 +241,7 @@ function Lecturer() {
           fullName: "",
           email: "",
           contact: "",
-          mode: "Online",
+          mode: "online",
           dob: "",
           address: "",
           regNumber: "",
@@ -308,7 +341,7 @@ function Lecturer() {
 
   // Initialize edit form when selected changes
   useEffect(() => {
-    if (selected) {
+    if (selected && selected.id) {
       setEditForm({
         fullName: selected.full_name || selected.fullName || "",
         email: selected.email || "",
@@ -322,17 +355,25 @@ function Lecturer() {
       // Fetch assigned courses for this lecturer
       fetchAssignedCourses(selected.id);
       setEditMode(false);
+    } else if (selected) {
+      console.warn("Selected lecturer has no id:", selected);
+      setAssignedCourses([]);
     }
   }, [selected]);
 
   // Fetch assigned courses for a lecturer
   const fetchAssignedCourses = async (lecturerId) => {
-    try {
-      // TODO: Replace with actual API endpoint when available
-      // For now, show empty - admin can refresh courses and assign new ones in edit mode
+    if (!lecturerId) {
+      console.warn("fetchAssignedCourses: lecturerId is undefined");
       setAssignedCourses([]);
+      return;
+    }
+    try {
+      const res = await getByLecturerId(lecturerId);
+      setAssignedCourses(res.data.result || res.data || []);
     } catch (err) {
       console.error("Error fetching assigned courses:", err);
+      setAssignedCourses([]);
     }
   };
 
@@ -410,7 +451,7 @@ function Lecturer() {
   const filtered = lecturers.filter((l) => {
     if (!lowered) return true;
     const fullName = l.full_name || l.fullName || "";
-    const email = l.email || "";
+    const email = l.email || l.user_email || "";
     const contact = l.phone || l.contact || "";
     const subject = l.subject || "";
     return (
@@ -561,7 +602,7 @@ function Lecturer() {
                       <td
                         className={`px-4 py-3 text-xs ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}
                       >
-                        {l.email}
+                        {l.email || l.user_email}
                       </td>
                       <td
                         className={`px-4 py-3 text-xs ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}
@@ -737,8 +778,8 @@ function Lecturer() {
                     Full Name
                   </label>
                   <input
-                    name="fullName"
-                    value={form.fullName}
+                    name="full_Name"
+                    value={form.full_Name}
                     onChange={handleChange}
                     className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                   />
@@ -764,8 +805,8 @@ function Lecturer() {
                     Contact Number (WhatsApp)
                   </label>
                   <input
-                    name="contact"
-                    value={form.contact}
+                    name="phone"
+                    value={form.phone}
                     onChange={handleChange}
                     inputMode="numeric"
                     placeholder="Digits only"
@@ -785,9 +826,8 @@ function Lecturer() {
                       onChange={handleChange}
                       className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                     >
-                      <option>Online</option>
-                      <option>Physical</option>
-                      <option>Both</option>
+                      <option value={"online"}>online</option>
+                      <option value={"physical"}>physical</option>
                     </select>
                   </div>
                   <div>
@@ -811,7 +851,7 @@ function Lecturer() {
                   </select>
                   </div>
                 </div>
-                <div>
+                {/* <div>
                   <label
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
                   >
@@ -824,7 +864,7 @@ function Lecturer() {
                     type="date"
                     className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                   />
-                </div>
+                </div> */}
                 <div>
                   <label
                     className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
@@ -999,8 +1039,8 @@ function Lecturer() {
                     <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Full Name</label>
                     <input
                       type="text"
-                      name="fullName"
-                      value={editForm.fullName}
+                      name="full_Name"
+                      value={editForm.full_Name}
                       onChange={handleEditChange}
                       className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                     />
@@ -1019,8 +1059,8 @@ function Lecturer() {
                     <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Contact</label>
                     <input
                       type="text"
-                      name="contact"
-                      value={editForm.contact}
+                      name="phone"
+                      value={editForm.phone}
                       onChange={handleEditChange}
                       className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                     />
@@ -1034,12 +1074,11 @@ function Lecturer() {
                         onChange={handleEditChange}
                         className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                       >
-                        <option>Online</option>
-                        <option>Physical</option>
-                        <option>Both</option>
+                        <option>online</option>
+                        <option>physical</option>
                       </select>
                     </div>
-                    <div>
+                    {/* <div>
                       <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Date of Birth</label>
                       <input
                         type="date"
@@ -1048,7 +1087,7 @@ function Lecturer() {
                         onChange={handleEditChange}
                         className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                       />
-                    </div>
+                    </div> */}
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Address</label>
@@ -1116,7 +1155,7 @@ function Lecturer() {
                       <p
                         className={`text-sm font-semibold mt-1 ${isDarkMode ? "text-white" : "text-slate-900"}`}
                       >
-                        {selected.full_name || selected.fullName}
+                        {selected.full_name || selected.full_Name}
                       </p>
                     </div>
                     <div>
@@ -1140,7 +1179,7 @@ function Lecturer() {
                       <p
                         className={`text-sm mt-1 ${isDarkMode ? "text-slate-300" : "text-slate-600"} break-all`}
                       >
-                        {selected.email}
+                          {selected.email || selected.user_email}
                       </p>
                     </div>
                     <div>
@@ -1167,7 +1206,7 @@ function Lecturer() {
                         {selected.mode || "Online"}
                       </p>
                     </div>
-                    <div>
+                    {/* <div>
                       <p
                         className={`text-xs font-medium ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}
                       >
@@ -1178,7 +1217,7 @@ function Lecturer() {
                       >
                         {selected.dob || "—"}
                       </p>
-                    </div>
+                    </div> */}
                     <div className="sm:col-span-2">
                       <p
                         className={`text-xs font-medium ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}

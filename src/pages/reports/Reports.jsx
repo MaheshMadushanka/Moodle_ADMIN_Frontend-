@@ -5,6 +5,7 @@ import FiltersBar from '../../components/reports/FiltersBar'
 import CourseReportTable from '../../components/reports/CourseReportTable'
 import StudentReportTable from '../../components/reports/StudentReportTable'
 import ChartsSection from '../../components/reports/ChartsSection'
+import { getAllCourses, getAllStudents, getAllLecturers } from '../../Api/Api'
 
 function Reports() {
   const { isDarkMode } = useTheme()
@@ -16,19 +17,81 @@ function Reports() {
     instructor: '',
   })
 
-  // Simulated statistics
-  const stats = {
-    totalCourses: 12,
-    totalStudents: 542,
-    totalInstructors: 8,
-    totalEnrollments: 1245,
+  // Live statistics state
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    totalStudents: 0,
+    totalInstructors: 0,
+    totalEnrollments: 0,
+  })
+  const [recentEnrollments, setRecentEnrollments] = useState([])
+
+  const getCountFromResponse = (res) => {
+    if (!res) return 0
+    const d = res.data || res
+    if (Array.isArray(d)) return d.length
+    if (Array.isArray(d?.data)) return d.data.length
+    if (Array.isArray(d?.result)) return d.result.length
+    if (typeof d?.total === 'number') return d.total
+    if (typeof d?.count === 'number') return d.count
+    return 0
   }
 
-  // Simulate loading
+  const getListFromResponse = (res) => {
+    if (!res) return []
+    const d = res.data || res
+    if (Array.isArray(d)) return d
+    if (Array.isArray(d?.data)) return d.data
+    if (Array.isArray(d?.result)) return d.result
+    return []
+  }
+
   useEffect(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), 800)
-    return () => clearTimeout(timer)
+    let mounted = true
+    const fetchStats = async () => {
+      setIsLoading(true)
+      try {
+        const [coursesRes, studentsRes, lecturersRes] = await Promise.all([
+          getAllCourses(1, 10000),
+          getAllStudents(1, 10000),
+          getAllLecturers(1, 10000),
+        ])
+
+        if (!mounted) return
+
+        const totalCourses = getCountFromResponse(coursesRes)
+        const totalStudents = getCountFromResponse(studentsRes)
+        const totalInstructors = getCountFromResponse(lecturersRes)
+
+        // Build recent enrollments from courses list (best-effort)
+        const coursesList = getListFromResponse(coursesRes)
+        const recent = (coursesList || [])
+          .slice(-8)
+          .reverse()
+          .map((c) => ({
+            course: c.name || c.course_name || c.title || `Course ${c.id || ''}`,
+            enrollments: c.enrolled_count || c.enrollments || c.enrolled || 0,
+            date: c.created_at || c.updated_at || c.date || new Date().toISOString(),
+          }))
+
+        // totalEnrollments best-effort: sum of enrollments from courses list
+        const totalEnrollments = (coursesList || []).reduce((sum, c) => {
+          return sum + (c.enrolled_count || c.enrollments || c.enrolled || 0)
+        }, 0)
+
+        setStats({ totalCourses, totalStudents, totalInstructors, totalEnrollments })
+        setRecentEnrollments(recent.slice(0, 8))
+      } catch (err) {
+        console.error('Failed to fetch reports data', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+    return () => {
+      mounted = false
+    }
   }, [filters])
 
   const handleFilterChange = (key, value) => {
@@ -124,29 +187,32 @@ function Reports() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {[
-                    { course: 'BIT Student Matters', enrollments: 12, date: '2026-02-06' },
-                    { course: 'Administrative Matters', enrollments: 8, date: '2026-02-06' },
-                    { course: 'Orientation 24In2', enrollments: 15, date: '2026-02-07' },
-                    { course: 'Pre Academic Week', enrollments: 5, date: '2026-02-05' },
-                  ].map((row, idx) => (
-                    <tr
-                      key={idx}
-                      className={`transition-colors duration-150 ${isDarkMode ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'}`}
-                    >
-                      <td className={`px-6 py-4 text-sm font-medium ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
-                        {row.course}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${isDarkMode ? 'bg-orange-900/30 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
-                          {row.enrollments}
-                        </span>
-                      </td>
-                      <td className={`px-6 py-4 text-sm ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {new Date(row.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  {recentEnrollments && recentEnrollments.length > 0 ? (
+                    recentEnrollments.map((row, idx) => (
+                      <tr
+                        key={`${row.course}-${row.date}-${idx}`}
+                        className={`transition-colors duration-150 ${isDarkMode ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'}`}
+                      >
+                        <td className={`px-6 py-4 text-sm font-medium ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
+                          {row.course}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${isDarkMode ? 'bg-orange-900/30 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
+                            {row.enrollments}
+                          </span>
+                        </td>
+                        <td className={`px-6 py-4 text-sm ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                          {new Date(row.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className={`px-6 py-6 text-center ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                        No recent enrollments found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
