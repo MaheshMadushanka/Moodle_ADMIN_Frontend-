@@ -264,7 +264,7 @@ function Student() {
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${
                     isDarkMode ? 'text-slate-200' : 'text-slate-700'
                   }`}>
-                    Batch
+                    
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${
                     isDarkMode ? 'text-slate-200' : 'text-slate-700'

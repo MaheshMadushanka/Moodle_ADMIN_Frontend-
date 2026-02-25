@@ -531,7 +531,8 @@ function Lecturer() {
                   <th
                     className={`px-4 py-3 text-left text-sm font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
                   >
-                    sub
+                    
+
                   </th>
                   <th
                     className={`px-4 py-3 text-center text-sm font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
@@ -639,7 +640,7 @@ function Lecturer() {
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${(l.mode || "").toLowerCase() === "online" ? (isDarkMode ? "bg-blue-900/30 text-blue-300" : "bg-blue-50 text-blue-700") : isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-50 text-green-700"}`}
                     >
-                      {l.mode || "Online"}
+                      {l.mode || "#"}
                     </span>
                   </div>
                   <div className="space-y-2 text-xs mb-4">
@@ -709,7 +710,7 @@ function Lecturer() {
             Showing {filtered.length} of {total} lecturers
           </p>
         </div>
-
+        {/* Lecturer Details Modal */}
         {showAdd && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40 p-4 sm:p-0">
             <div
@@ -893,6 +894,7 @@ function Lecturer() {
 
                   <div className="mb-3">
                     <button
+                      type="button"
                       onClick={fetchCoursesList}
                       className={`px-3 py-2 rounded-md text-sm ${isDarkMode ? "bg-slate-700 hover:bg-slate-600 text-white" : "bg-slate-100 hover:bg-slate-200"}`}
                     >
@@ -938,7 +940,11 @@ function Lecturer() {
                 <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 justify-end">
                   <button
                     type="button"
-                    onClick={() => setShowAdd(false)}
+                    onClick={() => {
+                      setShowAdd(false);
+                      setCourses([]);
+                      setSelectedCourseIds([]);
+                    }}
                     disabled={loading}
                     className={`px-6 py-2.5 rounded-lg font-medium transition-colors min-h-[44px] disabled:opacity-50 ${isDarkMode ? "bg-slate-700 hover:bg-slate-600 text-white" : "bg-slate-200 hover:bg-slate-300"}`}
                   >

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Clock, Globe, BookOpen } from 'lucide-react'
+import {getImageUrl} from '../../Api/Api'
 
 function CourseCard({ course, onView }) {
   return (
@@ -9,10 +10,10 @@ function CourseCard({ course, onView }) {
     >
       {/* Thumbnail */}
       <div className="relative h-40 sm:h-48 overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex-shrink-0">
-        {course.thumbnail ? (
+        {course.imageURL ? (
           <img
-            src={course.thumbnail}
-            alt={course.title}
+            src={getImageUrl(course.imageURL)}
+            alt={course.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -21,17 +22,17 @@ function CourseCard({ course, onView }) {
           </div>
         )}
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs font-semibold">
-          {course.mode}
+          {/* {course.mode} */}Online or Offline
         </div>
       </div>
 
       {/* Content */}
       <div className="p-3 sm:p-4 flex-grow flex flex-col">
         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-2">
-          {course.title}
+          {course.name}
         </h3>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2 flex-grow">
-          {course.shortDescription}
+          {/* {course.shortDescription} */}short description 
         </p>
 
         {/* Meta Info */}
@@ -39,12 +40,12 @@ function CourseCard({ course, onView }) {
           <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
             <Globe size={12} className="hidden sm:block" />
             <Globe size={10} className="sm:hidden" />
-            {course.language}
+            {/* {course.language} */} English
           </div>
           <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
             <Clock size={12} className="hidden sm:block" />
             <Clock size={10} className="sm:hidden" />
-            {course.duration}
+            {/* {course.duration}  */}6 Month
           </div>
         </div>
 

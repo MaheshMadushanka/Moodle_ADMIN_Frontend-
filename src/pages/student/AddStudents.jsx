@@ -29,7 +29,7 @@ function AddStudents() {
     email: '',
     contact: '',
     mode: '',
-    batchNumber: '',
+    // batchNumber: '',
     dob: '',
     address: '',
     registrationNumber: '',
@@ -96,9 +96,9 @@ function AddStudents() {
       newErrors.roleId = 'Please select a role';
     }
 
-    if (!formData.batchNumber.trim()) {
-      newErrors.batchNumber = 'Batch number is required';
-    }
+    // if (!formData.batchNumber.trim()) {
+    //   newErrors.batchNumber = 'Batch number is required';
+    // }
 
     if (!formData.dob) {
       newErrors.dob = 'Date of birth is required';
@@ -371,7 +371,7 @@ function AddStudents() {
                 </div>
 
                 {/* Batch Number */}
-                <div>
+                {/* <div>
                   <label htmlFor="batchNumber" className={labelClass}>
                     <div className="flex items-center gap-2">
                       <UsersIcon size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
@@ -392,7 +392,7 @@ function AddStudents() {
                       <span>⚠</span> {errors.batchNumber}
                     </p>
                   )}
-                </div>
+                </div> */}
 
                 {/* Date of Birth */}
                 <div>

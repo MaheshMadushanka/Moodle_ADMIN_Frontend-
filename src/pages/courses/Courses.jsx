@@ -31,43 +31,50 @@ function Courses() {
     load()
   }, [])
 
-  const handleCreateCourse = (newCourse, imageFile) => {
-    const create = async () => {
-      try {
-        const res = await createCourse(newCourse.title || newCourse.name)
-        if (res.data && res.data.status) {
-          const created = res.data.result
-          // if image selected, upload
-          if (imageFile && created && created.id) {
-            try {
-              const up = await updateCourseImageById(created.id, imageFile)
-              if (up.data && up.data.status) {
-                Swal.fire({ icon: 'success', title: 'Created', text: 'Course created and image uploaded', confirmButtonColor: '#3b82f6' })
-              } else {
-                Swal.fire({ icon: 'warning', title: 'Created', text: 'Course created but image upload failed', confirmButtonColor: '#f59e0b' })
-              }
-            } catch (err) {
-              console.error('Image upload error', err)
-              Swal.fire({ icon: 'warning', title: 'Created', text: 'Course created but image upload failed', confirmButtonColor: '#f59e0b' })
-            }
-          } else {
-            Swal.fire({ icon: 'success', title: 'Created', text: res.data.message || 'Course created', confirmButtonColor: '#3b82f6' })
-          }
+  const handleCreateCourse = async (title, imageFile) => {
+  try {
+  
+    const res = await createCourse(title);
 
-          // refresh list
-          const list = await getAllCourses(1, 100)
-          setCourses(list.data?.result || [])
-          setShowCreateModal(false)
-        } else {
-          Swal.fire({ icon: 'error', title: 'Error', text: res.data?.message || 'Failed to create course', confirmButtonColor: '#ef4444' })
-        }
-      } catch (err) {
-        console.error('Create course error', err)
-        Swal.fire({ icon: 'error', title: 'Error', text: err.response?.data?.message || err.message || 'Failed to create course', confirmButtonColor: '#ef4444' })
-      }
+    if (!res.data?.status) {
+      throw new Error(res.data?.message || "Create failed");
     }
-    create()
+
+    const courseId = res.data.result?.id;
+
+
+    if (imageFile && courseId) {
+      await updateCourseImageById(courseId, imageFile);
+    }
+
+ 
+    Swal.fire({
+      icon: "success",
+      title: "Course Created",
+      text: "Course created successfully",
+      confirmButtonColor: "#3b82f6",
+    });
+
+  
+    const list = await getAllCourses(1, 100);
+    setCourses(list.data?.result || []);
+    
+
+    setShowCreateModal(false);
+
+  } catch (err) {
+    console.error(err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text:
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to create course",
+    });
   }
+};
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>

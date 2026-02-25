@@ -25,6 +25,8 @@ import {
   Cell
 } from 'recharts';
 import { useTheme } from '../../context/ThemeContext';
+import { getAllStudents, getAllLecturers, getAllCourses } from '../../Api/Api';
+import { useEffect, useState } from 'react';
 
 function Dashboard() {
   const { isDarkMode } = useTheme();
@@ -54,10 +56,44 @@ function Dashboard() {
     { name: 'Business', value: 10, color: '#93c5fd' },
   ];
 
+  const [studentCount, setStudentCount] = useState('-');
+  const [lecturerCount, setLecturerCount] = useState('-');
+  const [courseCount, setCourseCount] = useState('-');
+
+  useEffect(() => {
+    const getCountFromResponse = (res) => {
+      if (!res) return 0;
+      const d = res.data || res;
+      if (Array.isArray(d)) return d.length;
+      if (Array.isArray(d?.data)) return d.data.length;
+      if (Array.isArray(d?.result)) return d.result.length;
+      if (typeof d?.total === 'number') return d.total;
+      if (typeof d?.count === 'number') return d.count;
+      return 0;
+    };
+
+    const fetchTotals = async () => {
+      try {
+        const [sRes, lRes, cRes] = await Promise.all([
+          getAllStudents(1, 10000),
+          getAllLecturers(1, 10000),
+          getAllCourses(1, 10000),
+        ]);
+        setStudentCount(getCountFromResponse(sRes));
+        setLecturerCount(getCountFromResponse(lRes));
+        setCourseCount(getCountFromResponse(cRes));
+      } catch (err) {
+        console.error('Failed to fetch dashboard totals', err);
+      }
+    };
+
+    fetchTotals();
+  }, []);
+
   const stats = [
     {
       title: 'Total Students',
-      value: '2,847',
+      value: studentCount,
       change: '+12.5%',
       trend: 'up',
       icon: Users,
@@ -67,7 +103,7 @@ function Dashboard() {
     },
     {
       title: 'Total Lecturers',
-      value: '156',
+      value: lecturerCount,
       change: '+5.2%',
       trend: 'up',
       icon: GraduationCap,
@@ -77,7 +113,7 @@ function Dashboard() {
     },
     {
       title: 'Active Courses',
-      value: '48',
+      value: courseCount,
       change: '+8.1%',
       trend: 'up',
       icon: BookOpen,

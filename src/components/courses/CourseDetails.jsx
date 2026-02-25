@@ -1,6 +1,7 @@
 import React from 'react'
-import { X, Globe, Clock, BookOpen } from 'lucide-react'
+import { X, Globe, Clock, BookOpen, EggIcon } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
+import { getImageUrl } from '../../Api/Api'
 
 function CourseDetails({ course, onClose }) {
   const { isDarkMode } = useTheme()
@@ -27,10 +28,10 @@ function CourseDetails({ course, onClose }) {
         <div className="p-4 sm:p-6">
           {/* Thumbnail */}
           <div className="mb-6 rounded-lg overflow-hidden h-40 sm:h-64 bg-gradient-to-br from-blue-400 to-purple-500">
-            {course.thumbnail ? (
+            {course.imageURL ? (
               <img
-                src={course.thumbnail}
-                alt={course.title}
+                src={getImageUrl(course.imageURL)}
+                alt={course.name}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -42,7 +43,7 @@ function CourseDetails({ course, onClose }) {
 
           {/* Title */}
           <h3 className={`text-xl sm:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'} mb-4`}>
-            {course.title}
+            {course.name}
           </h3>
 
           {/* Metadata */}
@@ -50,19 +51,19 @@ function CourseDetails({ course, onClose }) {
             <div className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm ${isDarkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
               <BookOpen className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} size={16} />
               <span className={isDarkMode ? 'text-slate-200' : 'text-slate-700'}>
-                {course.mode}
+                {/* {course.mode} */}online or offline
               </span>
             </div>
             <div className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm ${isDarkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
               <Globe className={isDarkMode ? 'text-green-400' : 'text-green-600'} size={16} />
               <span className={isDarkMode ? 'text-slate-200' : 'text-slate-700'}>
-                {course.language}
+                {/* {course.language} */ "English"}
               </span>
             </div>
             <div className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm ${isDarkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
               <Clock className={isDarkMode ? 'text-orange-400' : 'text-orange-600'} size={16} />
               <span className={isDarkMode ? 'text-slate-200' : 'text-slate-700'}>
-                {course.duration}
+                {/* {course.duration} */}6 Month
               </span>
             </div>
           </div>
@@ -76,7 +77,7 @@ function CourseDetails({ course, onClose }) {
               Overview
             </h4>
             <p className={`text-sm sm:text-base ${isDarkMode ? 'text-slate-300' : 'text-slate-700'} leading-relaxed`}>
-              {course.shortDescription}
+              {/* {course.shortDescription} */}
             </p>
           </div>
 
@@ -86,7 +87,7 @@ function CourseDetails({ course, onClose }) {
               Description
             </h4>
             <p className={`text-sm sm:text-base ${isDarkMode ? 'text-slate-300' : 'text-slate-700'} leading-relaxed whitespace-pre-line`}>
-              {course.description}
+              {/* {course.description} */} short description of the course goes here.
             </p>
           </div>
 

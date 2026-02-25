@@ -1,56 +1,56 @@
-import React, { useState } from 'react'
-import { X } from 'lucide-react'
-import { useTheme } from '../../context/ThemeContext'
+import React, { useState } from "react";
+import { X } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
 function CreateCourseModal({ onClose, onSubmit }) {
-  const { isDarkMode } = useTheme()
+  const { isDarkMode } = useTheme();
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    shortDescription: '',
-    thumbnail: '',
-    mode: 'Online',
-    language: 'English',
-    duration: '4 weeks',
-  })
-  const [imageFile, setImageFile] = useState(null)
+    title: "",
+    // description: '',
+    // shortDescription: '',
+    // thumbnail: '',
+    // mode: 'Online',
+    // language: 'English',
+    // duration: '4 weeks',
+  });
+  const [file, setFile] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!form.title.trim()) return alert('Course title is required.')
-    if (!form.description.trim()) return alert('Course description is required.')
-    if (!form.shortDescription.trim()) return alert('Short description is required.')
+    e.preventDefault();
 
-    onSubmit({ ...form }, imageFile)
+    if (!form.title.trim()) {
+      alert("Course title is required");
+      return;
+    }
 
-    setForm({
-      title: '',
-      description: '',
-      shortDescription: '',
-      thumbnail: '',
-      mode: 'Online',
-      language: 'English',
-      duration: '4 weeks',
-    })
-    setImageFile(null)
-  }
+    onSubmit(form.title, file);
+
+    setForm({ title: "", thumbnail: "" });
+    setFile(null);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-0">
-      <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-white'} rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}>
+      <div
+        className={`${isDarkMode ? "bg-slate-800" : "bg-white"} rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}
+      >
         {/* Header */}
-        <div className={`sticky top-0 flex items-center justify-between ${isDarkMode ? 'bg-slate-700' : 'bg-slate-100'} p-4 sm:p-6 border-b ${isDarkMode ? 'border-slate-600' : 'border-slate-200'}`}>
-          <h2 className={`text-lg sm:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+        <div
+          className={`sticky top-0 flex items-center justify-between ${isDarkMode ? "bg-slate-700" : "bg-slate-100"} p-4 sm:p-6 border-b ${isDarkMode ? "border-slate-600" : "border-slate-200"}`}
+        >
+          <h2
+            className={`text-lg sm:text-2xl font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}
+          >
             Create New Course
           </h2>
           <button
             onClick={onClose}
-            className={`p-1.5 sm:p-2 rounded-lg transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${isDarkMode ? 'hover:bg-slate-600 text-slate-300' : 'hover:bg-slate-200'}`}
+            className={`p-1.5 sm:p-2 rounded-lg transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${isDarkMode ? "hover:bg-slate-600 text-slate-300" : "hover:bg-slate-200"}`}
           >
             <X size={20} />
           </button>
@@ -60,7 +60,9 @@ function CreateCourseModal({ onClose, onSubmit }) {
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           {/* Title */}
           <div>
-            <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
+            <label
+              className={`block text-sm font-semibold mb-2 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
+            >
               Course Title *
             </label>
             <input
@@ -69,12 +71,26 @@ function CreateCourseModal({ onClose, onSubmit }) {
               value={form.title}
               onChange={handleChange}
               placeholder="Enter course title"
-              className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+              className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
           </div>
-
-          {/* Short Description */}
           <div>
+            <label
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}
+            >
+              Thumbnail{" "}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+              />
+            </div>
+          </div>
+
+          {/* <div>
             <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
               Short Description *
             </label>
@@ -89,7 +105,6 @@ function CreateCourseModal({ onClose, onSubmit }) {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
               Full Description *
@@ -102,10 +117,9 @@ function CreateCourseModal({ onClose, onSubmit }) {
               rows={4}
               className={`w-full px-4 py-2.5 rounded-lg border transition-colors resize-none ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
-          </div>
+          </div> */}
 
-          {/* Thumbnail URL */}
-          <div>
+          {/* <div>
             <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
               Thumbnail URL
             </label>
@@ -117,18 +131,9 @@ function CreateCourseModal({ onClose, onSubmit }) {
               placeholder="https://example.com/image.jpg"
               className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
-          </div>
+          </div> */}
 
-          {/* Image file upload */}
-          <div>
-            <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
-              Upload Image (optional)
-            </label>
-            <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
-          </div>
-
-          {/* Mode */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
                 Mode *
@@ -145,7 +150,6 @@ function CreateCourseModal({ onClose, onSubmit }) {
               </select>
             </div>
 
-            {/* Language */}
             <div>
               <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
                 Language *
@@ -167,7 +171,6 @@ function CreateCourseModal({ onClose, onSubmit }) {
             </div>
           </div>
 
-          {/* Duration */}
           <div>
             <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
               Duration *
@@ -180,14 +183,13 @@ function CreateCourseModal({ onClose, onSubmit }) {
               placeholder="e.g., 4 weeks, 8 hours"
               className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500'} focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
-          </div>
+          </div> */}
 
-          {/* Buttons */}
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-600">
             <button
               type="button"
               onClick={onClose}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-colors min-h-[44px] ${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-colors min-h-[44px] ${isDarkMode ? "bg-slate-700 hover:bg-slate-600 text-slate-200" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
             >
               Cancel
             </button>
@@ -201,7 +203,7 @@ function CreateCourseModal({ onClose, onSubmit }) {
         </form>
       </div>
     </div>
-  )
+  );
 }
 
-export default CreateCourseModal
+export default CreateCourseModal;

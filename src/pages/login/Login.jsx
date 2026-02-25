@@ -27,75 +27,64 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      setError("Please enter both email and password");
-      setLoading(false);
+  setError("");
+  setLoading(true);
+
+  if (!formData.email || !formData.password) {
+    setError("Please enter both email and password");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    console.log("Attempting login with:", formData);
+
+    const response = await loginUser(
+      formData.email,
+      formData.password
+    );
+
+    const data = response.data;
+    console.log("Login response:", data);
+
+    if (!data.status) {
+      setError(data.error || "Login failed");
       return;
     }
 
-    const response = await loginUser(formData.email, formData.password);
+    const { token, userDetails } = data.result;
 
-
-    if (response.data.status) {
-      const { token, userDetails } = response.data.result;
-
-      // Save auth data
-      localStorage.setItem("authToken", token);
-      localStorage.setItem("userDetails", JSON.stringify(userDetails));
-
-      console.log("User Details:", userDetails);
-
-      // Redirect logic
-      let redirectPath = "/dashboard";
-
-      if (!userDetails.admins || userDetails.admins.length === 0) {
-        setError("User does not have admin access");
-        e.preventDefault();
-        setLoading(false);
-        return;
-      }
-
-      // Handle login logic here
-      console.log("Login submitted:", formData);
-      nav("/dashboard");
-      setLoading(true);
-      setError("");
-
-      try {
-        if (!formData.email || !formData.password) {
-          setError("Please enter both email and password");
-          setLoading(false);
-          return;
-        }
-
-        await Swal.fire({
-          icon: "success",
-          title: "Login Successful",
-          text: response.data.message,
-          confirmButtonColor: "#3b82f6",
-        });
-
-        nav(redirectPath);
-      } catch (error) {
-        console.error(error);
-        // handle error (adjust to your component state handlers)
-        if (typeof setError === "function")
-          setError(error.message || String(error));
-      } finally {
-        // optional cleanup (adjust to your component state handlers)
-        if (typeof setLoading === "function") setLoading(false);
-      }
+    if (!userDetails?.admins?.length) {
+      setError("User does not have admin access");
+      return;
     }
-    else {
-      console.error("Login failed:", response.data);
-      setError(response.data.error || "Login failed");
-      setLoading(false);
-    }
-  };
+
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("userDetails", JSON.stringify(userDetails));
+
+    await Swal.fire({
+      icon: "success",
+      title: "Login Successful",
+      text: data.message,
+      confirmButtonColor: "#3b82f6",
+    });
+
+    nav("/dashboard");
+
+  } catch (err) {
+    console.error("Login error:", err);
+
+    setError(
+      err.response?.data?.error ||
+      err.error ||
+      "Login failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
