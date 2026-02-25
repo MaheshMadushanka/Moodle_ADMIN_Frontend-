@@ -17,7 +17,7 @@ function Layout({ children }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingLeft: 'var(--sidebar-width, 0px)' }}>
         {/* Navbar */}
         <div className="flex-shrink-0">
           <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
