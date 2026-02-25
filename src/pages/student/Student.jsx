@@ -10,7 +10,7 @@ import {
   Filter
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import { getAllStudents, deleteStudentById, updateStudentAccountStatus } from '../../Api/Api';
+import { getAllStudents, deleteStudentById, updateStudentAccountStatus, getAllUsers, changePasswordByUserId } from '../../Api/Api';
 import Swal from 'sweetalert2';
 
 function Student() {
@@ -21,6 +21,11 @@ function Student() {
   const [loading, setLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editStudent, setEditStudent] = useState(null);
+  const [editPassword, setEditPassword] = useState('');
+  const [editConfirmPassword, setEditConfirmPassword] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
 
   // Fetch students on component mount
   useEffect(() => {
@@ -31,15 +36,27 @@ function Student() {
     setLoading(true);
     try {
       const response = await getAllStudents();
-      if (response.data.status && response.data.result) {
-        setStudents(response.data.result);
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.data.message || 'Failed to fetch students',
-          confirmButtonColor: '#ef4444'
+      const list = (response?.data?.result) || (response?.data) || response || [];
+
+      // fetch users once and map by id to avoid n+1 requests
+      try {
+        const usersRes = await getAllUsers(1, 10000);
+        const usersList = (usersRes?.data?.result) || (usersRes?.data) || usersRes || [];
+        const usersMap = new Map();
+        usersList.forEach((u) => usersMap.set(u.id, u));
+
+        const merged = (Array.isArray(list) ? list : []).map((s) => {
+          const user = usersMap.get(s.user_id) || usersMap.get(s.userId) || null;
+          return {
+            ...s,
+            user_email: user?.email || s.email || '',
+          };
         });
+
+        setStudents(merged);
+      } catch (uErr) {
+        console.error('Failed to fetch users for email mapping', uErr);
+        setStudents(Array.isArray(list) ? list : []);
       }
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.message || 'Failed to fetch students';
@@ -69,8 +86,11 @@ function Student() {
     setShowDetailsModal(true);
   };
 
-  const handleEdit = (studentId) => {
-    //navigate(`/editstudent/${studentId}`);
+  const handleEdit = (student) => {
+    setEditStudent(student);
+    setEditPassword('');
+    setEditConfirmPassword('');
+    setShowEditModal(true);
   };
 
   const handleDelete = async (studentId, studentName) => {
@@ -152,6 +172,43 @@ function Student() {
       setLoading(false);
     }
   };
+
+    const handleSaveEdit = async () => {
+      if (!editStudent) return;
+      if (!editPassword) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Password cannot be empty', confirmButtonColor: '#ef4444' });
+        return;
+      }
+      if (editPassword !== editConfirmPassword) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Passwords do not match', confirmButtonColor: '#ef4444' });
+        return;
+      }
+      if (editPassword.length < 6) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Password must be at least 6 characters', confirmButtonColor: '#ef4444' });
+        return;
+      }
+
+      setEditLoading(true);
+      try {
+        const userId = editStudent.user_id || editStudent.userId;
+        const res = await changePasswordByUserId(userId, editPassword);
+        if (res?.data?.status) {
+          Swal.fire({ icon: 'success', title: 'Updated', text: 'Password changed successfully', confirmButtonColor: '#3b82f6' });
+          setShowEditModal(false);
+          setEditStudent(null);
+          setEditPassword('');
+          setEditConfirmPassword('');
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res?.data?.message || 'Failed to change password', confirmButtonColor: '#ef4444' });
+        }
+      } catch (err) {
+        const msg = err.response?.data?.message || err.message || 'Failed to change password';
+        Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#ef4444' });
+        console.error('Error changing password:', err);
+      } finally {
+        setEditLoading(false);
+      }
+    };
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
@@ -322,7 +379,7 @@ function Student() {
                       <td className={`px-6 py-4 text-sm ${
                         isDarkMode ? 'text-slate-300' : 'text-slate-600'
                       }`}>
-                        {student.email}
+                        {student.email || student.user_email}
                       </td>
                       <td className="px-6 py-4">
                         <button
@@ -352,7 +409,7 @@ function Student() {
                             <Eye size={18} />
                           </button>
                           <button
-                            onClick={() => handleEdit(student.id)}
+                            onClick={() => handleEdit(student)}
                             disabled={loading}
                             className={`p-2 rounded-lg transition-colors duration-200 disabled:opacity-50 ${
                               isDarkMode
@@ -448,7 +505,7 @@ function Student() {
                 </div>
                 <div>
                   <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Email</p>
-                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.email}</p>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{selectedStudent.email || selectedStudent.user_email}</p>
                 </div>
                 <div>
                   <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Account Status</p>
@@ -476,6 +533,68 @@ function Student() {
                   className={`px-6 py-2.5 rounded-lg font-medium transition-all ${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`}
                 >
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Edit Student Modal (password change) */}
+        {showEditModal && editStudent && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-white'} rounded-lg w-full max-w-md overflow-y-auto p-6`}>
+              <div className="flex items-start justify-between mb-4">
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Edit Student</h2>
+                <button onClick={() => setShowEditModal(false)} className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}>✕</button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Full Name</label>
+                  <div className={`mt-1 text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{editStudent.full_name}</div>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>User ID</label>
+                  <div className={`mt-1 text-sm ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{editStudent.user_id}</div>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>New Password</label>
+                  <input
+                    type="password"
+                    value={editPassword}
+                    onChange={(e) => setEditPassword(e.target.value)}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                    placeholder="Enter new password"
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Confirm Password</label>
+                  <input
+                    type="password"
+                    value={editConfirmPassword}
+                    onChange={(e) => setEditConfirmPassword(e.target.value)}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                    placeholder="Confirm new password"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className={`px-4 py-2 rounded-lg font-medium ${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`}
+                  disabled={editLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className={`px-4 py-2 rounded-lg font-medium text-white ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  disabled={editLoading}
+                >
+                  {editLoading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </div>

@@ -8,6 +8,7 @@ import {
   registerLecturer,
   deleteLecturerById,
   getAllCourses,
+  getCourseById,
   getByLecturerId,
   uploadLecturerCVByUserId,
   updateLecturerAccountStatus,
@@ -24,11 +25,10 @@ function Lecturer() {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState([]);
   const [form, setForm] = useState({
-    fullName: "",
+    full_Name: "",
     email: "",
-    contact: "",
+    phone: "",
     mode: "Online",
-    dob: "",
     address: "",
     regNumber: "",
     nic: "",
@@ -127,20 +127,24 @@ function Lecturer() {
   }
 
   function validate() {
-    if (!form.fullName.trim()) return "Full Name is required.";
-    if (!form.email.trim()) return "Email is required.";
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
-      return "Enter a valid email.";
-    if (!form.contact.trim()) return "Contact Number is required.";
-    if (!/^\d{7,15}$/.test(form.contact))
-      return "Contact should be 7-15 digits (WhatsApp number).";
-    if (!form.regNumber.trim()) return "Registration Number is required.";
-    if (!form.address.trim()) return "Address is required.";
+    const fullName = (form.fullName || form.full_Name || "").toString().trim();
+    const email = (form.email || "").toString().trim();
+    const phone = (form.contact || form.phone || "").toString().trim();
+    const regNumber = (form.regNumber || form.reg_number || "").toString().trim();
+    const address = (form.address || "").toString().trim();
+
+    if (!fullName) return "Full Name is required.";
+    if (!email) return "Email is required.";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return "Enter a valid email.";
+    if (!phone) return "Phone Number is required.";
+    if (!/^\d{7,15}$/.test(phone)) return "Contact should be 7-15 digits (WhatsApp number).";
+    if (!regNumber) return "Registration Number is required.";
+    if (!address) return "Address is required.";
 
     if (cvFile) {
-        const lower = cvFile.name.toLowerCase()
-        if (!(lower.endsWith('.pdf') || lower.endsWith('.doc') || lower.endsWith('.docx'))) {
-          return 'CV must be a PDF, DOC or DOCX file.'
+      const lower = cvFile.name.toLowerCase();
+      if (!(lower.endsWith(".pdf") || lower.endsWith(".doc") || lower.endsWith(".docx"))) {
+        return "CV must be a PDF, DOC or DOCX file.";
       }
     }
     return null;
@@ -201,17 +205,30 @@ function Lecturer() {
 
     setLoading(true);
     try {
-      // Transform form data to snake_case to match API expectations
+      // Transform form data to snake_case to match API expectations (use fallbacks for mixed keys)
+      // Normalize dob: convert to YYYY-MM-DD if valid, otherwise send null
+      const rawDob = form.dob || form.DOB || form.dob || "";
+      let normalizedDob = null;
+      if (rawDob) {
+        const d = new Date(rawDob);
+        if (!isNaN(d.getTime())) {
+          normalizedDob = d.toISOString().split("T")[0];
+        } else {
+          // try to parse common formats (fallback) - keep null if invalid
+          normalizedDob = null;
+        }
+      }
+
       const payload = {
-        full_name: form.fullName,
-        email: form.email,
-        phone: form.contact,
-        address: form.address,
-        mode: form.mode,
-        dob: form.dob,
-        reg_number: form.regNumber,
-        nic: form.nic,
-        role_id: form.roleId,
+        full_name: form.fullName || form.full_Name || "",
+        email: form.email || "",
+        phone: form.contact || form.phone || "",
+        address: form.address || "",
+        mode: form.mode || "online",
+        dob: normalizedDob,
+        reg_number: form.regNumber || form.reg_number || "",
+        nic: form.nic || "",
+        role_id: form.roleId || form.role_id || null,
       };
       
       console.log("Sending lecturer payload:", payload);
@@ -237,16 +254,17 @@ function Lecturer() {
           text: response.data.message || "Lecturer added successfully",
           confirmButtonColor: "#3b82f6",
         });
+        // Reset both variants so form inputs bound to either name are cleared
         setForm({
-          fullName: "",
+          full_Name: "",
           email: "",
-          contact: "",
+          phone: "",
           mode: "online",
           dob: "",
           address: "",
-          regNumber: "",
+          reg_number: "",
           nic: "",
-          roleId: 1,
+          role_id: 1,
         });
         setShowAdd(false);
         fetchLecturers();
@@ -352,6 +370,7 @@ function Lecturer() {
         regNumber: selected.reg_number || selected.regNumber || "",
         nic: selected.nic || "",
       });
+      
       // Fetch assigned courses for this lecturer
       fetchAssignedCourses(selected.id);
       setEditMode(false);
@@ -361,7 +380,7 @@ function Lecturer() {
     }
   }, [selected]);
 
-  // Fetch assigned courses for a lecturer
+  // Fetch assigned courses for a lecturer with course details
   const fetchAssignedCourses = async (lecturerId) => {
     if (!lecturerId) {
       console.warn("fetchAssignedCourses: lecturerId is undefined");
@@ -370,7 +389,34 @@ function Lecturer() {
     }
     try {
       const res = await getByLecturerId(lecturerId);
-      setAssignedCourses(res.data.result || res.data || []);
+      const courseAssociations = res.data.result || res.data || [];
+      
+      // If empty, set empty and return
+      if (!courseAssociations || courseAssociations.length === 0) {
+        setAssignedCourses([]);
+        return;
+      }
+      
+      // Fetch full course details for each association
+      const enrichedCourses = await Promise.all(
+        courseAssociations.map(async (association) => {
+          try {
+            // Extract course_id from association
+            const courseId = association.course_id || association.courseId;
+            if (!courseId) return null;
+            
+            const courseRes = await getCourseById(courseId);
+            const courseData = courseRes.data.result || courseRes.data;
+            return courseData;
+          } catch (err) {
+            console.error(`Failed to fetch course ${association.course_id || association.courseId}:`, err);
+            return null;
+          }
+        })
+      );
+      
+      // Filter out null values and set state
+      setAssignedCourses(enrichedCourses.filter(c => c !== null));
     } catch (err) {
       console.error("Error fetching assigned courses:", err);
       setAssignedCourses([]);
@@ -400,11 +446,10 @@ function Lecturer() {
             l.id === selected.id
               ? {
                   ...l,
-                  full_name: editForm.fullName,
+                  full_name: editForm.full_Name,
                   email: editForm.email,
-                  phone: editForm.contact,
+                  phone: editForm.phone,
                   mode: editForm.mode,
-                  dob: editForm.dob,
                   address: editForm.address,
                   reg_number: editForm.regNumber,
                   nic: editForm.nic,
@@ -414,11 +459,10 @@ function Lecturer() {
         );
         setSelected((prev) => ({
           ...prev,
-          full_name: editForm.fullName,
+          full_name: editForm.full_Name,
           email: editForm.email,
-          phone: editForm.contact,
+          phone: editForm.phone,
           mode: editForm.mode,
-          dob: editForm.dob,
           address: editForm.address,
           reg_number: editForm.regNumber,
           nic: editForm.nic,
