@@ -25,15 +25,15 @@ function AddStudents() {
   const [roles, setRoles] = useState([]);
 
   const [formData, setFormData] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
-    contact: '',
+    phone: '',
     mode: '',
     // batchNumber: '',
     dob: '',
     address: '',
-    registrationNumber: '',
-    roleId: 2
+    reg_number: '',
+    role_id: 2
   });
 
   const [errors, setErrors] = useState({});
@@ -72,8 +72,8 @@ function AddStudents() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+    if (!formData.full_name.trim()) {
+      newErrors.full_name = 'Full name is required';
     }
 
     if (!formData.email.trim()) {
@@ -82,18 +82,18 @@ function AddStudents() {
       newErrors.email = 'Email is invalid';
     }
 
-    if (!formData.contact.trim()) {
-      newErrors.contact = 'Contact number is required';
-    } else if (!/^(\+94|0)?[0-9]{9,10}$/.test(formData.contact.replace(/\s/g, ''))) {
-      newErrors.contact = 'Valid WhatsApp number is required';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'phone number is required';
+    } else if (!/^(\+94|0)?[0-9]{9,10}$/.test(formData.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Valid WhatsApp number is required';
     }
 
     if (!formData.mode) {
       newErrors.mode = 'Please select a mode';
     }
 
-    if (!formData.roleId) {
-      newErrors.roleId = 'Please select a role';
+    if (!formData.role_id) {
+      newErrors.role_id = 'Please select a role';
     }
 
     // if (!formData.batchNumber.trim()) {
@@ -108,8 +108,8 @@ function AddStudents() {
       newErrors.address = 'Address is required';
     }
 
-    if (!formData.registrationNumber.trim()) {
-      newErrors.registrationNumber = 'Registration number is required';
+    if (!formData.reg_number.trim()) {
+      newErrors.reg_number = 'Registration number is required';
     }
 
     setErrors(newErrors);
@@ -253,16 +253,16 @@ function AddStudents() {
                   </label>
                   <input
                     type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
+                    id="full_name"
+                    name="full_name"
+                    value={formData.full_name}
                     onChange={handleChange}
                     placeholder="Enter student's full name"
                     className={inputClass}
                   />
-                  {errors.fullName && (
+                  {errors.full_name && (
                     <p className={errorClass}>
-                      <span>⚠</span> {errors.fullName}
+                      <span>⚠</span> {errors.full_name}
                     </p>
                   )}
                 </div>
@@ -293,7 +293,7 @@ function AddStudents() {
 
                 {/* Contact Number */}
                 <div>
-                  <label htmlFor="contact" className={labelClass}>
+                  <label htmlFor="phone" className={labelClass}>
                     <div className="flex items-center gap-2">
                       <Phone size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
                       WhatsApp Number *
@@ -301,16 +301,16 @@ function AddStudents() {
                   </label>
                   <input
                     type="tel"
-                    id="contact"
-                    name="contact"
-                    value={formData.contact}
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     placeholder="+94 77 123 4567"
                     className={inputClass}
                   />
-                  {errors.contact && (
+                  {errors.phone && (
                     <p className={errorClass}>
-                      <span>⚠</span> {errors.contact}
+                      <span>⚠</span> {errors.phone}
                     </p>
                   )}
                 </div>
@@ -331,8 +331,8 @@ function AddStudents() {
                     className={inputClass}
                   >
                     <option value="">Select mode</option>
-                    <option value="Online">Online</option>
-                    <option value="Physical">Physical</option>
+                    <option value="online">online</option>
+                    <option value="physical">physical</option>
                   </select>
                   {errors.mode && (
                     <p className={errorClass}>
@@ -343,16 +343,16 @@ function AddStudents() {
 
                 {/* Role */}
                 <div>
-                  <label htmlFor="roleId" className={labelClass}>
+                  <label htmlFor="role_id" className={labelClass}>
                     <div className="flex items-center gap-2">
                       <Shield size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
                       Role *
                     </div>
                   </label>
                   <select
-                    id="roleId"
-                    name="roleId"
-                    value={formData.roleId}
+                    id="role_id"
+                    name="role_id"
+                    value={formData.role_id}
                     onChange={handleChange}
                     className={inputClass}
                   >
@@ -451,16 +451,16 @@ function AddStudents() {
                   </label>
                   <input
                     type="text"
-                    id="registrationNumber"
-                    name="registrationNumber"
-                    value={formData.registrationNumber}
+                    id="reg_number"
+                    name="reg_number"
+                    value={formData.reg_number}
                     onChange={handleChange}
                     placeholder="STU2024001"
                     className={inputClass}
                   />
-                  {errors.registrationNumber && (
+                  {errors.reg_number && (
                     <p className={errorClass}>
-                      <span>⚠</span> {errors.registrationNumber}
+                      <span>⚠</span> {errors.reg_number}
                     </p>
                   )}
                 </div>

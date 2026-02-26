@@ -1,6 +1,9 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Layout from "../components/layout/Layout";
+import ProtectedRoute from "./ProtectedRoute";
+
 import Dashboard from "../pages/dashboard/Dashboard";
 import Login from "../pages/login/Login";
 import Student from "../pages/student/Student";
@@ -15,88 +18,102 @@ function MoodleRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* PUBLIC ROUTE */}
         <Route path="/" element={<Login />} />
 
-
+        {/* PROTECTED ROUTES */}
         <Route
           path="/dashboard"
           element={
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           }
         />
+
         <Route
           path="/students"
           element={
-            <Layout>
-              <Student />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Student />
+              </Layout>
+            </ProtectedRoute>
           }
         />
+
         <Route
           path="/addstudent"
           element={
-            <Layout>
-              <AddStudents />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <AddStudents />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/lecturers"
           element={
-            <Layout>
-              <Lecturer />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Lecturer />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/roles"
           element={
-            <Layout>
-              <Roles />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Roles />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/courses"
           element={
-            <Layout>
-              <Courses />
-            </Layout>
-          }
-        /><Route
-          path="/courses"
-          element={
-            <Layout>
-              <Courses />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Courses />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/reports"
           element={
-            <Layout>
-              <Reports />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Reports />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/settings"
           element={
-            <Layout>
-              <Settings />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Settings />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
-        {/* Add more routes as needed */}
+        {/* 404 */}
         <Route path="*" element={<div>404 - Page Not Found</div>} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -169,7 +169,7 @@ function Sidebar() {
       {/* Bottom Section */}
       <div className={`p-3 space-y-2 ${sidebarBorderColor} border-t`}> 
         {/* Light/Dark Mode Toggle */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-lg ${
+        {/* <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-lg ${
           isDarkMode ? 'bg-slate-800/50' : 'bg-slate-700/50'
         }`}>
           {!isCollapsed && (
@@ -203,7 +203,7 @@ function Sidebar() {
               )}
             </span>
           </button>
-        </div>
+        </div> */}
 
         {/* Logout Button */}
         <button 
