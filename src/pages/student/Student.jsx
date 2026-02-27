@@ -10,7 +10,7 @@ import {
   Filter
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import { getAllStudents, deleteStudentById, updateStudentAccountStatus, getAllUsers, changePasswordByUserId } from '../../Api/Api';
+import { getAllStudents, deleteStudentById, updateStudentAccountStatus, getAllUsers, changePasswordByUserId, updateStudent, updateEmailByStudentId, getAllRoles } from '../../Api/Api';
 import Swal from 'sweetalert2';
 
 function Student() {
@@ -23,13 +23,25 @@ function Student() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editStudent, setEditStudent] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    full_name: '',
+    phone: '',
+    address: '',
+    mode: '',
+    dob: '',
+    reg_number: '',
+    email: '',
+    role_id: '',
+  });
   const [editPassword, setEditPassword] = useState('');
+  const [roles, setRoles] = useState([]);
   const [editConfirmPassword, setEditConfirmPassword] = useState('');
   const [editLoading, setEditLoading] = useState(false);
 
-  // Fetch students on component mount
+  // Fetch students & roles on component mount
   useEffect(() => {
     fetchStudents();
+    fetchRoles();
   }, []);
 
   const fetchStudents = async () => {
@@ -81,6 +93,17 @@ function Student() {
     (student.batch_number || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const fetchRoles = async () => {
+    try {
+      const response = await getAllRoles();
+      if (response.data.status && response.data.result) {
+        setRoles(response.data.result);
+      }
+    } catch (err) {
+      console.error('Error fetching roles:', err);
+    }
+  };
+
   const handleView = (student) => {
     setSelectedStudent(student);
     setShowDetailsModal(true);
@@ -88,6 +111,16 @@ function Student() {
 
   const handleEdit = (student) => {
     setEditStudent(student);
+    setEditFormData({
+      full_name: student.full_name || '',
+      phone: student.phone || '',
+      address: student.address || '',
+      mode: student.mode || '',
+      dob: student.dob ? student.dob.split('T')[0] : '',
+      reg_number: student.reg_number || '',
+      email: student.user_email || '',
+      role_id: student.role_id || student.roleId || '',
+    });
     setEditPassword('');
     setEditConfirmPassword('');
     setShowEditModal(true);
@@ -175,36 +208,94 @@ function Student() {
 
     const handleSaveEdit = async () => {
       if (!editStudent) return;
-      if (!editPassword) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Password cannot be empty', confirmButtonColor: '#ef4444' });
+
+      // basic validation
+      if (editFormData.email && !/\S+@\S+\.\S+/.test(editFormData.email)) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Email is invalid', confirmButtonColor: '#ef4444' });
         return;
       }
-      if (editPassword !== editConfirmPassword) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Passwords do not match', confirmButtonColor: '#ef4444' });
-        return;
-      }
-      if (editPassword.length < 6) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Password must be at least 6 characters', confirmButtonColor: '#ef4444' });
+      if (editFormData.role_id === '' || editFormData.role_id == null) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Role must be selected', confirmButtonColor: '#ef4444' });
         return;
       }
 
       setEditLoading(true);
       try {
-        const userId = editStudent.user_id || editStudent.userId;
-        const res = await changePasswordByUserId(userId, editPassword);
-        if (res?.data?.status) {
-          Swal.fire({ icon: 'success', title: 'Updated', text: 'Password changed successfully', confirmButtonColor: '#3b82f6' });
+        const userId = editStudent.id ;
+        let anySuccess = false;
+
+        // 1. update student fields if changed
+        const studentUpdates = {
+          full_name: editFormData.full_name,
+          phone: editFormData.phone,
+          address: editFormData.address,
+          mode: editFormData.mode,
+          dob: editFormData.dob,
+          reg_number: editFormData.reg_number,
+          role_id: editFormData.role_id,
+        };
+        console.debug('Saving edit for student id', editStudent.id, 'payload', studentUpdates, 'emailChange', editFormData.email !== (editStudent.user_email || ''));
+
+        const changedStudent = Object.keys(studentUpdates).some(
+          (k) => studentUpdates[k] !== (editStudent[k] || '')
+        );
+
+        if (changedStudent) {
+          const studentId = editStudent.id || editStudent.student_id || editStudent.studentId;
+        if (!studentId) {
+          throw new Error('Missing student identifier');
+        }
+        const resp = await updateStudent(studentId, studentUpdates);
+          if (resp?.data?.status) {
+            anySuccess = true;
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: resp?.data?.message || 'Failed to update student info', confirmButtonColor: '#ef4444' });
+          }
+        }
+
+        // 2. update email separately if changed
+        if (
+          editFormData.email &&
+          editFormData.email !== (editStudent.user_email || '')
+        ) {
+          const resp2 = await updateEmailByStudentId(userId, editFormData.email);
+          if (resp2?.data?.status) {
+            anySuccess = true;
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: resp2?.data?.message || 'Failed to update email', confirmButtonColor: '#ef4444' });
+          }
+        }
+
+        // 3. optionally change password if provided
+        if (editPassword) {
+          if (editPassword !== editConfirmPassword) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Passwords do not match', confirmButtonColor: '#ef4444' });
+            setEditLoading(false);
+            return;
+          }
+          if (editPassword.length < 6) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Password must be at least 6 characters', confirmButtonColor: '#ef4444' });
+            setEditLoading(false);
+            return;
+          }
+          const passResp = await changePasswordByUserId(userId, editPassword);
+          if (passResp?.data?.status) {
+            anySuccess = true;
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: passResp?.data?.message || 'Failed to change password', confirmButtonColor: '#ef4444' });
+          }
+        }
+
+        if (anySuccess) {
+          Swal.fire({ icon: 'success', title: 'Updated', text: 'Student record updated successfully', confirmButtonColor: '#3b82f6' });
+          fetchStudents();
           setShowEditModal(false);
           setEditStudent(null);
-          setEditPassword('');
-          setEditConfirmPassword('');
-        } else {
-          Swal.fire({ icon: 'error', title: 'Error', text: res?.data?.message || 'Failed to change password', confirmButtonColor: '#ef4444' });
         }
       } catch (err) {
-        const msg = err.response?.data?.message || err.message || 'Failed to change password';
+        const msg = err.response?.data?.message || err.message || 'Failed to update student';
         Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#ef4444' });
-        console.error('Error changing password:', err);
+        console.error('Error saving edits:', err);
       } finally {
         setEditLoading(false);
       }
@@ -541,23 +632,103 @@ function Student() {
         {/* Edit Student Modal (password change) */}
         {showEditModal && editStudent && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-white'} rounded-lg w-full max-w-md overflow-y-auto p-6`}>
+            <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-white'} rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6`}>
               <div className="flex items-start justify-between mb-4">
                 <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Edit Student</h2>
                 <button onClick={() => setShowEditModal(false)} className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}>✕</button>
               </div>
 
               <div className="space-y-4">
+                {/* editable student fields */}
                 <div>
                   <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Full Name</label>
-                  <div className={`mt-1 text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{editStudent.full_name}</div>
+                  <input
+                    type="text"
+                    value={editFormData.full_name}
+                    onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  />
                 </div>
 
                 <div>
-                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>User ID</label>
-                  <div className={`mt-1 text-sm ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{editStudent.user_id}</div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Email</label>
+                  <input
+                    type="email"
+                    value={editFormData.email}
+                    onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  />
                 </div>
 
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Phone</label>
+                  <input
+                    type="tel"
+                    value={editFormData.phone}
+                    onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Mode</label>
+                  <select
+                    value={editFormData.mode}
+                    onChange={(e) => setEditFormData({...editFormData, mode: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  >
+                    <option value="">Select mode</option>
+                    <option value="online">online</option>
+                    <option value="physical">physical</option>
+                    <option value="hybrid">hybrid</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Role</label>
+                  <select
+                    value={editFormData.role_id}
+                    onChange={(e) => setEditFormData({...editFormData, role_id: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  >
+                    <option value="">Select role</option>
+                    {roles.map(r => (
+                      <option key={r.id} value={r.id}>{r.position}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Date of Birth</label>
+                  <input
+                    type="date"
+                    value={editFormData.dob}
+                    onChange={(e) => setEditFormData({...editFormData, dob: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Address</label>
+                  <textarea
+                    value={editFormData.address}
+                    onChange={(e) => setEditFormData({...editFormData, address: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                    rows="2"
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Registration Number</label>
+                  <input
+                    type="text"
+                    value={editFormData.reg_number}
+                    onChange={(e) => setEditFormData({...editFormData, reg_number: e.target.value})}
+                    className={`w-full mt-1 px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  />
+                </div>
+
+                {/* password fields still optional */}
                 <div>
                   <label className={`block text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>New Password</label>
                   <input

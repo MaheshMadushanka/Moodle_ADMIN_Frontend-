@@ -1,0 +1,1785 @@
+{
+  "info": {
+    "_postman_id": "e60a5289-b94d-4671-9de4-06d6e88ddaf5",
+    "name": "Moodle-APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33225789"
+  },
+  "item": [
+    {
+      "name": "role",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"position\":\"ad\" \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/role/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "role",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getById",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/role/getById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "role",
+                "getById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAll",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/role/getAll?page=1&limit=2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "role",
+                "getAll"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "limit",
+                  "value": "2",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"position\": \"Senior Technician\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/role/updateById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "role",
+                "updateById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateById Copy",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/role/deleteById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "role",
+                "deleteById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "course",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\":\"course 05\" \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getById",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course/getById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course",
+                "getById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAll",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course/getAll?page=1&limit=2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course",
+                "getAll"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"c1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course/updateById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course",
+                "updateById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteById",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course/deleteById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course",
+                "deleteById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateImageById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "6350c1a9-cfb8-4d42-9e4a-31eb8a195acc",
+                  "src": "/C:/Users/User/OneDrive/Pictures/images (1).png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course/updateImageById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course",
+                "updateImageById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "course_lecturer",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"lecturer_id\": 1,\r\n  \"courses\": [2,3]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getById",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/getById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "getById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getByLecturerId",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/getByLecturerId/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "getByLecturerId",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getByCourseId",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/getByCourseId/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "getByCourseId",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAll",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/getAll?page=1&limit=10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "getAll"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"course_id\": 4,\r\n    \"lecturer_id\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/updateById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "updateById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteById",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/course_lecturer/deleteById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "course_lecturer",
+                "deleteById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "admin",
+      "item": [
+        {
+          "name": "registerSuperAdmin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/admin/registerSuperAdmin",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "admin",
+                "registerSuperAdmin"
+              ],
+              "query": [
+                {
+                  "key": "pdf",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "registerAdmin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"full_name\": \"Sanjaya\",\r\n    \"phone\": \"0763424455\",\r\n    \"address\": \"colombo\",\r\n    \"nic\": \"11111111V\",\r\n    \"email\": \"sanjayaprasad823@gmail.com\",\r\n    \"role_id\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://3.109.1.245:9999/api/admin/registerAdmin",
+              "protocol": "http",
+              "host": [
+                "3",
+                "109",
+                "1",
+                "245"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "admin",
+                "registerAdmin"
+              ],
+              "query": [
+                {
+                  "key": "pdf",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAllAdmin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/admin/getAllAdmin?page=1&limit=2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "admin",
+                "getAllAdmin"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAdminById",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/admin/getAdminById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "admin",
+                "getAdminById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateAdminById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"full_name\": \"s\",\r\n    \"phone\": \"11122222\",\r\n     \"address\": \"address\",\r\n      \"nic\": \"11111111V\",\r\n    \"role_id\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/admin/updateAdminById/11",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "admin",
+                "updateAdminById",
+                "11"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteAdminById",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/admin/deleteAdminById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "admin",
+                "deleteAdminById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateAccountStatusById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"inactive\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/admin/updateAccountStatusById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "admin",
+                "updateAccountStatusById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateImageById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "6350c1a9-cfb8-4d42-9e4a-31eb8a195acc",
+                  "src": "/C:/Users/User/OneDrive/Pictures/images.jpeg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://3.109.1.245:9999/api/admin/updateImageById/1",
+              "protocol": "http",
+              "host": [
+                "3",
+                "109",
+                "1",
+                "245"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "admin",
+                "updateImageById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "student",
+      "item": [
+        {
+          "name": "registerStudent",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"full_name\": \"Sanjaya\",\r\n    \"phone\": \"phone\",\r\n    \"address\": \"address\",\r\n    \"mode\": \"online\",\r\n    \"dob\": \"2000-12-07\",\r\n    \"reg_number\": \"2a452251\",\r\n    \"email\": \"sanjayaprasad823@gmail.com\",\r\n    \"role_id\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://3.109.1.245:9999/api/student/registerStudent",
+              "protocol": "http",
+              "host": [
+                "3",
+                "109",
+                "1",
+                "245"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "student",
+                "registerStudent"
+              ],
+              "query": [
+                {
+                  "key": "pdf",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getStudentById",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/student/getStudentById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "student",
+                "getStudentById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAllStudent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://13.203.160.138:8070/api/student/getAllStudent?page=1&limit=10",
+              "protocol": "http",
+              "host": [
+                "13",
+                "203",
+                "160",
+                "138"
+              ],
+              "port": "8070",
+              "path": [
+                "api",
+                "student",
+                "getAllStudent"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateStudentById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"full_name\": \"s\",\r\n    \"phone\": \"s\",\r\n    \"address\": \"s\",\r\n    \"mode\": \"online\",\r\n    \"dob\": \"2026-12-07\",\r\n    \"reg_number\": \"s\",\r\n    \"role_id\": 4\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/student/updateStudentById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "student",
+                "updateStudentById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteStudentById",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/student/deleteStudentById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "student",
+                "deleteStudentById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateAccountStatusById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"inactive\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/student/updateAccountStatusById/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "student",
+                "updateAccountStatusById",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateImageById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "6350c1a9-cfb8-4d42-9e4a-31eb8a195acc",
+                  "src": "/C:/Users/User/OneDrive/Pictures/images (1).png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/student/updateImageById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "student",
+                "updateImageById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "lecturer",
+      "item": [
+        {
+          "name": "registerLecture",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"full_name\": \"Sanjaya\",\r\n    \"phone\": \"phone\",\r\n    \"address\": \"address\",\r\n    \"mode\": \"online\",\r\n    \"dob\": \"2026-12-07\",\r\n    \"reg_number\": \"2452251\",\r\n    \"nic\": \"123433333V\",\r\n    \"email\": \"ssasnjayaprasad823@gmail.com\",\r\n    \"role_id\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/registerLecture",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "registerLecture"
+              ],
+              "query": [
+                {
+                  "key": "pdf",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getLectureById",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/getLectureById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "getLectureById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAllLecture",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/getAllLecture?page=1&limit=10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "getAllLecture"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateLectureById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"full_name\": \"s\",\r\n    \"phone\": \"s\",\r\n    \"address\": \"s\",\r\n    \"mode\": \"online\",\r\n    \"dob\": \"2026-12-07\",\r\n    \"reg_number\": \"s\",\r\n    \"nic\": \"s\",\r\n    \"role_id\": 4\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/updateLectureById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "updateLectureById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteLectureById",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/deleteLectureById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "deleteLectureById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateImageById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "6350c1a9-cfb8-4d42-9e4a-31eb8a195acc",
+                  "src": "/C:/Users/User/OneDrive/Pictures/images (1).png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/updateImageById/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "updateImageById",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateCVById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "uuid": "6350c1a9-cfb8-4d42-9e4a-31eb8a195acc",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/updateCVById/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "updateCVById",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateAccountStatusById",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"inactive\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/lecture/updateAccountStatusById/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "lecture",
+                "updateAccountStatusById",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \r\n  \"email\": \"sanjayaprasad823@gmail.com\",\r\n  \"password\": \"yAlO^xrG_,6*\"\r\n  \r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://13.203.160.138:8070/api/user/userLogin",
+              "protocol": "http",
+              "host": [
+                "13",
+                "203",
+                "160",
+                "138"
+              ],
+              "port": "8070",
+              "path": [
+                "api",
+                "user",
+                "userLogin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sendOTP",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \r\n  \"email\": \"sanjayaprasad823@gmail.com\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/user/sendOTP",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "user",
+                "sendOTP"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "validateOTPForFPW",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \r\n  \"email\": \"sanjayaprasad823@gmail.com\",\r\n  \"enteredOTP\":\"789886\",\r\n  \"newPassword\": \"12345\"\r\n  \r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/user/validateOTPForFPW",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "user",
+                "validateOTPForFPW"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAllUser",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://13.203.160.138:8070/api/user/getAllUser?page=1&limit=10",
+              "protocol": "http",
+              "host": [
+                "13",
+                "203",
+                "160",
+                "138"
+              ],
+              "port": "8070",
+              "path": [
+                "api",
+                "user",
+                "getAllUser"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getUserById",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://3.109.1.245:9999/api/user/getUserById/3",
+              "protocol": "http",
+              "host": [
+                "3",
+                "109",
+                "1",
+                "245"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "user",
+                "getUserById",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "changePasswordByUserId",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 9,\r\n    \"newPassword\" : \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/user/changePasswordByUserId/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "user",
+                "changePasswordByUserId",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateEmailByStudentId",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 1,\r\n    \"newEmail\" : \"s@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:9999/api/user/updateEmailByStudentId/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "user",
+                "updateEmailByStudentId",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateEmailByAdminId",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 1,\r\n    \"newEmail\" : \"s@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:9999/api/user/updateEmailByAdminId/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "user",
+                "updateEmailByAdminId",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateEmailByLectureId",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 1,\r\n    \"newEmail\" : \"s@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:9999/api/user/updateEmailByLectureId/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "9999",
+              "path": [
+                "api",
+                "user",
+                "updateEmailByLectureId",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

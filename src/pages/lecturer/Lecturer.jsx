@@ -10,10 +10,12 @@ import {
   getAllCourses,
   getCourseById,
   getByLecturerId,
+  getLecturerById,
   uploadLecturerCVByUserId,
   updateLecturerAccountStatus,
   assignCoursesToLecturer,
   updateLecturerById,
+  updateEmailByLecturerId,
 } from "../../Api/Api";
 import Swal from "sweetalert2";
 
@@ -28,7 +30,7 @@ function Lecturer() {
     full_Name: "",
     email: "",
     phone: "",
-    mode: "Online",
+    mode: "online",
     address: "",
     regNumber: "",
     nic: "",
@@ -51,6 +53,8 @@ function Lecturer() {
     address: "",
     regNumber: "",
     nic: "",
+    dob: "",
+    roleId: "",
   });
   const [assignedCourses, setAssignedCourses] = useState([]);
 
@@ -59,11 +63,39 @@ function Lecturer() {
     fetchLecturers();
     fetchRoles();
   }, []);
-
+useEffect(() => {
+  if (selected && selected.id) {
+    // Only update editForm if we're NOT in edit mode
+    // This prevents overwriting when handleRowEdit already set the form
+    if (!editMode) {
+      setEditForm({
+        full_Name: selected.full_name || selected.fullName || "",
+        email: selected.user_email || selected.email || "",
+        phone: selected.phone || selected.contact || "",
+        mode: selected.mode || "online",
+        dob: selected.dob || selected.date_of_birth || selected.dateOfBirth || "",
+        address: selected.address || "",
+        regNumber: selected.reg_number || selected.regNumber || "",
+        nic: selected.nic || "",
+        roleId: selected.role_id || selected.roleId || "",
+      });
+    }
+    
+    // Fetch assigned courses for this lecturer
+    fetchAssignedCourses(selected.id);
+    
+    // Don't set editMode to false here - let it be controlled by the button
+    // setEditMode(false); // Remove this line
+  } else if (selected) {
+    console.warn("Selected lecturer has no id:", selected);
+    setAssignedCourses([]);
+  }
+}, [selected, editMode]);
   // Save to localStorage whenever lecturers change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(lecturers));
   }, [lecturers]);
+
 
   const fetchLecturers = async () => {
     setLoading(true);
@@ -292,6 +324,58 @@ function Lecturer() {
     }
   }
 
+  async function handleRowEdit(id) {
+  setLoading(true);
+  try {
+    const res = await getLecturerById(id);
+    if (res.data && res.data.status) {
+
+      // Check if result is an array and get the first item
+      const lectData = res.data.result;
+      const lect = Array.isArray(lectData) ? lectData[0] : lectData;
+      
+      console.log('Fetched lecturer for edit:', lect);
+      
+      // Format the date properly if it exists
+      let formattedDob = lect.dob || lect.date_of_birth || lect.dateOfBirth || "";
+      if (formattedDob) {
+        const date = new Date(formattedDob);
+        if (!isNaN(date.getTime())) {
+          formattedDob = date.toISOString().split('T')[0];
+        }
+      }
+
+      // Create the new form data
+      const newEditForm = {
+        full_Name: lect.full_name || lect.full_Name || "",
+        email: lect.user_email || lect.email || "",
+        phone: lect.phone || lect.contact || "",
+        mode: lect.mode || "online",
+        dob: formattedDob,
+        address: lect.address || "",
+        regNumber: lect.reg_number || lect.regNumber || "",
+        nic: lect.nic || "",
+        roleId: lect.role_id || lect.roleId || "",
+      };
+      console.log('Prepared edit form data:', newEditForm);
+      
+      // Set all states
+      setSelected(lect);
+      setEditForm(newEditForm);
+      setEditMode(true);
+    }
+  } catch (err) {
+    console.error('Failed to fetch lecturer for edit', err);
+    Swal.fire({ 
+      icon: 'error', 
+      title: 'Error', 
+      text: 'Unable to load lecturer details', 
+      confirmButtonColor: '#ef4444' 
+    });
+  } finally {
+    setLoading(false);
+  }
+}
   async function handleDelete(id) {
     const l = lecturers.find((x) => x.id === id);
     if (!l) return;
@@ -357,29 +441,7 @@ function Lecturer() {
     }
   };
 
-  // Initialize edit form when selected changes
-  useEffect(() => {
-    if (selected && selected.id) {
-      setEditForm({
-        fullName: selected.full_name || selected.fullName || "",
-        email: selected.email || "",
-        contact: selected.phone || selected.contact || "",
-        mode: selected.mode || "Online",
-        dob: selected.dob || "",
-        address: selected.address || "",
-        regNumber: selected.reg_number || selected.regNumber || "",
-        nic: selected.nic || "",
-      });
-      
-      // Fetch assigned courses for this lecturer
-      fetchAssignedCourses(selected.id);
-      setEditMode(false);
-    } else if (selected) {
-      console.warn("Selected lecturer has no id:", selected);
-      setAssignedCourses([]);
-    }
-  }, [selected]);
-
+  
   // Fetch assigned courses for a lecturer with course details
   const fetchAssignedCourses = async (lecturerId) => {
     if (!lecturerId) {
@@ -432,8 +494,45 @@ function Lecturer() {
     if (!selected || !selected.id) return;
     setActionLoading(true);
     try {
-      const response = await updateLecturerById(selected.id, editForm);
+      // prepare update payload with expected field names
+      const updatePayload = {
+        full_name: editForm.full_Name,
+        email: editForm.email,
+        phone: editForm.phone,
+        mode: editForm.mode,
+        address: editForm.address,
+        dob: editForm.dob,
+        reg_number: editForm.regNumber,
+        nic: editForm.nic,
+        role_id: editForm.roleId,
+      };
+      const response = await updateLecturerById(selected.id, updatePayload);
+      let emailUpdated = false;
       if (response.data && response.data.status) {
+        // if email changed call separate endpoint
+        const currentEmail = selected.user_email || selected.email || "";
+        if (editForm.email && editForm.email !== currentEmail) {
+          try {
+            const emailResp = await updateEmailByLecturerId(
+              selected.user_id || selected.userId || selected.id,
+              editForm.email,
+            );
+            if (emailResp.data && emailResp.data.status) {
+              emailUpdated = true;
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: emailResp.data?.message || "Failed to update email",
+                confirmButtonColor: "#ef4444",
+              });
+            }
+          } catch (e) {
+            console.error('email update failed', e);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to update email', confirmButtonColor: '#ef4444' });
+          }
+        }
+
         Swal.fire({
           icon: "success",
           title: "Updated",
@@ -453,6 +552,7 @@ function Lecturer() {
                   address: editForm.address,
                   reg_number: editForm.regNumber,
                   nic: editForm.nic,
+                  role_id: editForm.roleId,
                 }
               : l,
           ),
@@ -466,6 +566,7 @@ function Lecturer() {
           address: editForm.address,
           reg_number: editForm.regNumber,
           nic: editForm.nic,
+          role_id: editForm.roleId,
         }));
         setEditMode(false);
       } else {
@@ -492,6 +593,7 @@ function Lecturer() {
   };
 
   const lowered = query.trim().toLowerCase();
+
   const filtered = lecturers.filter((l) => {
     if (!lowered) return true;
     const fullName = l.full_name || l.fullName || "";
@@ -667,14 +769,29 @@ function Lecturer() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
+                          {/* view button now loads full details and immediately opens edit form */}
                           <button
-                            onClick={() => setSelected(l)}
-                            disabled={loading}
-                            className={`p-1.5 rounded transition-colors duration-200 min-h-[40px] min-w-[40px] flex items-center justify-center disabled:opacity-50 ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-50 text-blue-600"}`}
-                            title="View"
-                          >
-                            <Eye size={16} />
-                          </button>
+  onClick={() => {
+    setSelected(l);
+    setEditMode(false); // Show in read-only mode
+  }}
+  disabled={loading}
+  className={`p-1.5 rounded transition-colors duration-200 min-h-[40px] min-w-[40px] flex items-center justify-center disabled:opacity-50 ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-50 text-blue-600"}`}
+  title="View"
+>
+  <Eye size={16} />
+</button>
+
+{/* For the Edit button - opens edit mode with data */}
+{/* Edit button */}
+<button
+  onClick={() => handleRowEdit(l.id)}
+  disabled={loading}
+  className={`p-1.5 rounded transition-colors duration-200 min-h-[40px] min-w-[40px] flex items-center justify-center disabled:opacity-50 ${isDarkMode ? "hover:bg-yellow-900/30 text-yellow-400" : "hover:bg-yellow-50 text-yellow-600"}`}
+  title="Edit"
+>
+  <Edit size={16} />
+</button>
                           <button
                             onClick={() => handleDelete(l.id)}
                             disabled={loading}
@@ -872,6 +989,7 @@ function Lecturer() {
                     >
                       <option value={"online"}>online</option>
                       <option value={"physical"}>physical</option>
+                      <option value={"hybrid"}>hybrid</option>
                     </select>
                   </div>
                   <div>
@@ -1059,7 +1177,8 @@ function Lecturer() {
                   Lecturer Details
                 </h2>
                 <div className="flex gap-2">
-                  {!editMode && (
+                  {/* edit icon in header no longer needed; users can start editing from the table */}
+                  {/* {!editMode && (
                     <button
                       onClick={() => setEditMode(true)}
                       className={`p-1.5 rounded-lg transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${isDarkMode ? "hover:bg-blue-900/30 text-blue-400" : "hover:bg-blue-50 text-blue-600"}`}
@@ -1067,7 +1186,7 @@ function Lecturer() {
                     >
                       <Edit size={20} />
                     </button>
-                  )}
+                  )} */}
                   <button
                     onClick={() => setSelected(null)}
                     className={`p-1.5 rounded-lg transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${isDarkMode ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-100"}`}
@@ -1109,7 +1228,7 @@ function Lecturer() {
                       className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Mode</label>
                       <select
@@ -1122,7 +1241,7 @@ function Lecturer() {
                         <option>physical</option>
                       </select>
                     </div>
-                    {/* <div>
+                    <div>
                       <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Date of Birth</label>
                       <input
                         type="date"
@@ -1131,7 +1250,21 @@ function Lecturer() {
                         onChange={handleEditChange}
                         className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
                       />
-                    </div> */}
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Role</label>
+                      <select
+                        name="roleId"
+                        value={editForm.roleId}
+                        onChange={handleEditChange}
+                        className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${isDarkMode ? "bg-slate-700 border-slate-600 text-white focus:border-blue-500" : "bg-white border-slate-200 focus:border-blue-500"} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                      >
+                        <option value="">Select Role</option>
+                        {roles.map((role) => (
+                          <option key={role.id} value={role.id}>{role.position}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>Address</label>

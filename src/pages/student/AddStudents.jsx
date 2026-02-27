@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  UserPlus, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  MapPin, 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  UserPlus,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
   Hash,
   Monitor,
   Users as UsersIcon,
   ArrowLeft,
   Save,
-  Shield
-} from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
-import { registerStudent, getAllRoles } from '../../Api/Api';
-import Swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
+  Shield,
+} from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
+import { registerStudent, getAllRoles } from "../../Api/Api";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 function AddStudents() {
   const { isDarkMode } = useTheme();
@@ -25,15 +25,15 @@ function AddStudents() {
   const [roles, setRoles] = useState([]);
 
   const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    mode: '',
+    full_name: "",
+    email: "",
+    phone: "",
+    mode: "",
     // batchNumber: '',
-    dob: '',
-    address: '',
-    reg_number: '',
-    role_id: 2
+    dob: "",
+    address: "",
+    reg_number: "",
+    role_id: 2,
   });
 
   const [errors, setErrors] = useState({});
@@ -43,6 +43,13 @@ function AddStudents() {
     fetchRoles();
   }, []);
 
+  // cleanup: close Swal if user navigates away while alert is open
+  useEffect(() => {
+    return () => {
+      Swal.close();
+    };
+  }, []);
+
   const fetchRoles = async () => {
     try {
       const response = await getAllRoles();
@@ -50,21 +57,21 @@ function AddStudents() {
         setRoles(response.data.result);
       }
     } catch (error) {
-      console.error('Error fetching roles:', error);
+      console.error("Error fetching roles:", error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -73,27 +80,29 @@ function AddStudents() {
     const newErrors = {};
 
     if (!formData.full_name.trim()) {
-      newErrors.full_name = 'Full name is required';
+      newErrors.full_name = "Full name is required";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'phone number is required';
-    } else if (!/^(\+94|0)?[0-9]{9,10}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Valid WhatsApp number is required';
+      newErrors.phone = "phone number is required";
+    } else if (
+      !/^(\+94|0)?[0-9]{9,10}$/.test(formData.phone.replace(/\s/g, ""))
+    ) {
+      newErrors.phone = "Valid WhatsApp number is required";
     }
 
     if (!formData.mode) {
-      newErrors.mode = 'Please select a mode';
+      newErrors.mode = "Please select a mode";
     }
 
     if (!formData.role_id) {
-      newErrors.role_id = 'Please select a role';
+      newErrors.role_id = "Please select a role";
     }
 
     // if (!formData.batchNumber.trim()) {
@@ -101,15 +110,15 @@ function AddStudents() {
     // }
 
     if (!formData.dob) {
-      newErrors.dob = 'Date of birth is required';
+      newErrors.dob = "Date of birth is required";
     }
 
     if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
+      newErrors.address = "Address is required";
     }
 
     if (!formData.reg_number.trim()) {
-      newErrors.reg_number = 'Registration number is required';
+      newErrors.reg_number = "Registration number is required";
     }
 
     setErrors(newErrors);
@@ -117,129 +126,142 @@ function AddStudents() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!validateForm()) {
-      Swal.fire({
-        title: 'Oops!',
-        text: 'Please fill in all required fields correctly',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#dc2626',
-        background: isDarkMode ? '#1e293b' : '#ffffff',
-        color: isDarkMode ? '#f1f5f9' : '#0f172a',
+  if (!validateForm()) {
+    Swal.fire({
+      title: "Oops!",
+      text: "Please fill in all required fields correctly",
+      icon: "error",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#dc2626",
+      background: isDarkMode ? "#1e293b" : "#ffffff",
+      color: isDarkMode ? "#f1f5f9" : "#0f172a",
+    });
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const response = await registerStudent(formData);
+
+    if (response.data.status) {
+      // Show success message
+      await Swal.fire({
+        title: "Success!",
+        text: response.data.message || "Student has been added successfully",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2563eb",
+        background: isDarkMode ? "#1e293b" : "#ffffff",
+        color: isDarkMode ? "#f1f5f9" : "#0f172a",
         customClass: {
-          popup: isDarkMode ? 'dark-popup' : ''
-        }
+          popup: isDarkMode ? "dark-popup" : "",
+        },
       });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await registerStudent(formData);
       
-      if (response.data.status) {
-        Swal.fire({
-          title: 'Success!',
-          text: response.data.message || 'Student has been added successfully',
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#2563eb',
-          background: isDarkMode ? '#1e293b' : '#ffffff',
-          color: isDarkMode ? '#f1f5f9' : '#0f172a',
-          customClass: {
-            popup: isDarkMode ? 'dark-popup' : '',
-            confirmButton: 'custom-confirm-button'
-          },
-          showClass: {
-            popup: 'animate__animated animate__fadeInDown animate__faster'
-          },
-          hideClass: {
-            popup: 'animate__animated animate__fadeOutUp animate__faster'
-          }
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate('/students');
-          }
-        });
-      } else {
-        Swal.fire({
-          title: 'Error!',
-          text: response.data.message || 'Failed to add student',
-          icon: 'error',
-          confirmButtonColor: '#dc2626',
-          background: isDarkMode ? '#1e293b' : '#ffffff',
-          color: isDarkMode ? '#f1f5f9' : '#0f172a',
-        });
-      }
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to add student. Please try again.';
-      Swal.fire({
-        title: 'Error!',
-        text: errorMsg,
-        icon: 'error',
-        confirmButtonColor: '#dc2626',
-        background: isDarkMode ? '#1e293b' : '#ffffff',
-        color: isDarkMode ? '#f1f5f9' : '#0f172a',
+      // Navigate AFTER the Swal is completely closed
+      navigate("/students");
+    } else {
+      await Swal.fire({
+        title: "Error!",
+        text: response.data.message || "Failed to add student",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        background: isDarkMode ? "#1e293b" : "#ffffff",
+        color: isDarkMode ? "#f1f5f9" : "#0f172a",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    const errorMsg =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to add student. Please try again.";
+    await Swal.fire({
+      title: "Error!",
+      text: errorMsg,
+      icon: "error",
+      confirmButtonColor: "#dc2626",
+      background: isDarkMode ? "#1e293b" : "#ffffff",
+      color: isDarkMode ? "#f1f5f9" : "#0f172a",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const inputClass = `w-full px-4 py-3 rounded-lg border transition-all duration-300 ${
-    isDarkMode 
-      ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-blue-500 focus:bg-slate-600' 
-      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500 focus:border-blue-500 focus:bg-slate-50'
+    isDarkMode
+      ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-blue-500 focus:bg-slate-600"
+      : "bg-white border-slate-300 text-slate-900 placeholder-slate-500 focus:border-blue-500 focus:bg-slate-50"
   } focus:outline-none focus:ring-2 focus:ring-blue-500/20`;
 
   const labelClass = `block text-sm font-semibold mb-2 transition-colors duration-300 ${
-    isDarkMode ? 'text-slate-200' : 'text-slate-700'
+    isDarkMode ? "text-slate-200" : "text-slate-700"
   }`;
 
-  const errorClass = 'text-red-500 text-xs mt-1 flex items-center gap-1';
+  const errorClass = "text-red-500 text-xs mt-1 flex items-center gap-1";
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      isDarkMode ? 'bg-slate-900' : 'bg-gradient-to-br from-slate-50 to-blue-50'
-    }`}>
+    <div
+      className={`min-h-screen transition-colors duration-300 ${
+        isDarkMode
+          ? "bg-slate-900"
+          : "bg-gradient-to-br from-slate-50 to-blue-50"
+      }`}
+    >
       <div className="max-w-5xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate('/students')}
+            onClick={() => {
+              Swal.close();
+              navigate("/students");
+            }}
+            disabled={loading}
             className={`flex items-center gap-2 mb-4 text-sm font-medium transition-colors duration-300 ${
-              isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
-            }`}
+              isDarkMode
+                ? "text-blue-400 hover:text-blue-300"
+                : "text-blue-600 hover:text-blue-700"
+            } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <ArrowLeft size={16} />
             Back to Students
           </button>
-          <h1 className={`text-3xl font-bold transition-colors duration-300 ${
-            isDarkMode ? 'text-white' : 'text-slate-900'
-          } mb-2`}>
+          <h1
+            className={`text-3xl font-bold transition-colors duration-300 ${
+              isDarkMode ? "text-white" : "text-slate-900"
+            } mb-2`}
+          >
             Add New Student
           </h1>
-          <p className={`transition-colors duration-300 ${
-            isDarkMode ? 'text-slate-300' : 'text-slate-600'
-          }`}>
+          <p
+            className={`transition-colors duration-300 ${
+              isDarkMode ? "text-slate-300" : "text-slate-600"
+            }`}
+          >
             Fill in the student registration details below
           </p>
         </div>
 
         {/* Form Card */}
-        <div className={`border rounded-2xl p-8 transition-all duration-300 ${
-          isDarkMode 
-            ? 'bg-slate-800 border-slate-700 shadow-2xl shadow-blue-900/10' 
-            : 'bg-white border-slate-200 shadow-xl shadow-slate-200/50'
-        }`}>
+        <div
+          className={`border rounded-2xl p-8 transition-all duration-300 ${
+            isDarkMode
+              ? "bg-slate-800 border-slate-700 shadow-2xl shadow-blue-900/10"
+              : "bg-white border-slate-200 shadow-xl shadow-slate-200/50"
+          }`}
+        >
           <form onSubmit={handleSubmit}>
             {/* Student Information Section */}
             <div className="mb-8">
-              <h2 className={`text-xl font-bold mb-6 pb-3 border-b transition-colors duration-300 ${
-                isDarkMode ? 'text-white border-slate-700' : 'text-slate-900 border-slate-200'
-              }`}>
+              <h2
+                className={`text-xl font-bold mb-6 pb-3 border-b transition-colors duration-300 ${
+                  isDarkMode
+                    ? "text-white border-slate-700"
+                    : "text-slate-900 border-slate-200"
+                }`}
+              >
                 Student Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -247,7 +269,12 @@ function AddStudents() {
                 <div className="md:col-span-2">
                   <label htmlFor="fullName" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <UserPlus size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <UserPlus
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Full Name *
                     </div>
                   </label>
@@ -271,7 +298,12 @@ function AddStudents() {
                 <div>
                   <label htmlFor="email" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <Mail size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <Mail
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Email Address *
                     </div>
                   </label>
@@ -295,7 +327,12 @@ function AddStudents() {
                 <div>
                   <label htmlFor="phone" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <Phone size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <Phone
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       WhatsApp Number *
                     </div>
                   </label>
@@ -319,7 +356,12 @@ function AddStudents() {
                 <div>
                   <label htmlFor="mode" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <Monitor size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <Monitor
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Mode *
                     </div>
                   </label>
@@ -333,6 +375,7 @@ function AddStudents() {
                     <option value="">Select mode</option>
                     <option value="online">online</option>
                     <option value="physical">physical</option>
+                    <option value="hybrid">hybrid</option>
                   </select>
                   {errors.mode && (
                     <p className={errorClass}>
@@ -345,7 +388,12 @@ function AddStudents() {
                 <div>
                   <label htmlFor="role_id" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <Shield size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <Shield
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Role *
                     </div>
                   </label>
@@ -357,15 +405,15 @@ function AddStudents() {
                     className={inputClass}
                   >
                     <option value="">Select Role</option>
-                    {roles.map(role => (
+                    {roles.map((role) => (
                       <option key={role.id} value={role.id}>
                         {role.position}
                       </option>
                     ))}
                   </select>
-                  {errors.roleId && (
+                  {errors.role_id && (
                     <p className={errorClass}>
-                      <span>⚠</span> {errors.roleId}
+                      <span>⚠</span> {errors.role_id}
                     </p>
                   )}
                 </div>
@@ -398,7 +446,12 @@ function AddStudents() {
                 <div>
                   <label htmlFor="dob" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <Calendar size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <Calendar
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Date of Birth *
                     </div>
                   </label>
@@ -421,7 +474,12 @@ function AddStudents() {
                 <div className="md:col-span-2">
                   <label htmlFor="address" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <MapPin size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <MapPin
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Address *
                     </div>
                   </label>
@@ -445,7 +503,12 @@ function AddStudents() {
                 <div className="md:col-span-2">
                   <label htmlFor="registrationNumber" className={labelClass}>
                     <div className="flex items-center gap-2">
-                      <Hash size={16} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+                      <Hash
+                        size={16}
+                        className={
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }
+                      />
                       Registration Number *
                     </div>
                   </label>
@@ -474,21 +537,21 @@ function AddStudents() {
                 disabled={loading}
                 className={`flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 ${
                   isDarkMode
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-900/30'
-                    : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30'
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-900/30"
+                    : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30"
                 }`}
               >
                 <Save size={20} />
-                {loading ? 'Adding Student...' : 'Add Student'}
+                {loading ? "Adding Student..." : "Add Student"}
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/students')}
+                onClick={() => navigate("/students")}
                 disabled={loading}
                 className={`px-6 py-3.5 rounded-lg font-semibold transition-all duration-300 disabled:opacity-50 ${
                   isDarkMode
-                    ? 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-600'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
+                    ? "bg-slate-700 hover:bg-slate-600 text-white border border-slate-600"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300"
                 }`}
               >
                 Cancel
@@ -499,7 +562,7 @@ function AddStudents() {
       </div>
 
       {/* Add custom styles for SweetAlert dark mode */}
-      <style jsx global>{`
+      <style>{`
         .dark-popup {
           border: 1px solid #334155 !important;
         }

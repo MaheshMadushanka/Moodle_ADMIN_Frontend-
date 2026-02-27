@@ -92,6 +92,23 @@ export const changePasswordByUserId = (user_id, newPassword) =>
     user_id,
     newPassword,
   });
+  export const updateEmailByStudentId = (id, newEmail) =>
+  api.put(`${EP.USER}/updateEmailByStudentId/`, {
+    id: id,
+    newEmail: newEmail,
+  });
+
+  export const updateEmailByLecturerId = (id, newEmail) =>
+  api.put(`${EP.USER}/updateEmailByLectureId/`, {
+    id: id,
+    newEmail: newEmail,
+  });
+  export const updateEmailByAdminId = (id, newEmail) =>
+  api.put(`${EP.USER}/updateEmailByAdminId/`, {
+    id: id,
+    newEmail: newEmail,
+  });
+
 
 /* =====================================================
    ROLE API
@@ -245,8 +262,11 @@ export const registerLecturer = (data) =>
 export const getAllLecturers = (page = 1, limit = 10) =>
   api.get(`${EP.LECTURER}/getAllLecture`, { params: { page, limit } });
 
+// helper for fetching a single lecturer; the backend path is `/getLectureById/<id>`
 export const getLecturerById = (id) =>
   api.get(`${EP.LECTURER}/getLectureById/${id}`);
+// alias matching the exact API name in case other modules refer to it directly
+export const getLectureById = getLecturerById;
 
 export const updateLecturerById = (id, data) =>
   api.put(`${EP.LECTURER}/updateLectureById/${id}`, data);
